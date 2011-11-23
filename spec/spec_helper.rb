@@ -57,3 +57,12 @@ def server_get(uri)
 	HTTPClient.new.get_content("http://localhost:3100#{uri}")
 end
 
+def identify(data)
+	Open3.popen3('identify -') do |stdin, stdout, stderr| 
+		stdin.write data
+		stdin.close
+		path, type, size, *rest = *stdout.read.split(' ')
+		return type, size
+	end
+end
+

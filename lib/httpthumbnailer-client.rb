@@ -1,5 +1,6 @@
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 require 'httpclient'
+require 'httpthumbnailer-client/multipart_response'
 
 class HTTPThumbnailerClient
 	class URIBuilder
@@ -32,13 +33,25 @@ class HTTPThumbnailerClient
 		end
 	end
 
+	class Thumbnail
+		def initialize(mime_type, data)
+			@mime_type = mime_type
+			@data = data
+		end	
+
+		attr_reader :mime_type, :data
+	end
+
 	def initialize(server_url)
 		@server_url = server_url
 	end
 
 	def thumbnail(data, &block)
 		uri = URIBuilder.thumbnail(&block)
-		HTTPClient.new.request('PUT', "#{@server_url}#{uri}", nil, data)
+		res = HTTPClient.new.request('PUT', "#{@server_url}#{uri}", nil, data)
+		MultipartResponse.new(res.header['Content-Type'].last, res.body).parts.map do |part|
+			Thumbnail.new(part.header['Content-Type'], part.body)
+		end
 	end
 end
 
