@@ -27,6 +27,7 @@ Gem::Specification.new do |s|
     "VERSION",
     "features/step_definitions/httpthumbnailer-client_steps.rb",
     "features/support/env.rb",
+    "httpthumbnailer-client.gemspec",
     "lib/httpthumbnailer-client.rb",
     "lib/httpthumbnailer-client/multipart_response.rb",
     "spec/httpthumbnailer-client_spec.rb",
