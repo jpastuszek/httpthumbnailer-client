@@ -33,12 +33,12 @@ class HTTPThumbnailerClient
 	end
 
 	def initialize(server_url)
-		@service_url = service_url
+		@server_url = server_url
 	end
 
 	def thumbnail(data, &block)
 		uri = URIBuilder.thumbnail(&block)
-		HTTPClient.new.put_content("#{service_url}#{uri}", data)
+		HTTPClient.new.request('PUT', "#{@server_url}#{uri}", nil, data)
 	end
 end
 

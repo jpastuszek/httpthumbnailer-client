@@ -11,4 +11,6 @@ group :development do
   gem "jeweler", "~> 1.6.4"
   gem "rcov", ">= 0"
   gem "rdoc", "~> 3.9"
+  gem "daemon", "~> 1"
+  gem "httpthumbnailer", "~> 0.0.1"
 end
