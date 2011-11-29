@@ -11,6 +11,7 @@ RSpec.configure do |config|
 end
 
 require 'daemon'
+require 'RMagick'
 
 def gem_dir
 	Pathname.new(__FILE__).dirname + '..'
@@ -58,11 +59,9 @@ def server_get(uri)
 end
 
 def identify(data)
-	Open3.popen3('identify -') do |stdin, stdout, stderr| 
-		stdin.write data
-		stdin.close
-		path, type, size, *rest = *stdout.read.split(' ')
-		return type, size
-	end
+	image = Magick::Image.from_blob(data).first
+	out = Struct.new(:format, :width, :height).new(image.format, image.columns, image.rows)
+	image.destroy!
+	out
 end
 

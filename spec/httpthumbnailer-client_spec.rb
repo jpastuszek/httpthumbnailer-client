@@ -29,19 +29,22 @@ describe HTTPThumbnailerClient do
 		end
 
 		thumbs[0].mime_type.should == 'image/jpeg'
-		t, s = identify(thumbs[0].data)
-		t.should == 'JPEG'
-		s.should == '6x3'
+		i = identify(thumbs[0].data)
+		i.format.should == 'JPEG'
+		i.width.should == 6
+		i.height.should == 3
 
 		thumbs[1].mime_type.should == 'image/png'
-		t, s = identify(thumbs[1].data)
-		t.should == 'PNG'
-		s.should == '8x8'
+		i = identify(thumbs[1].data)
+		i.format.should == 'PNG'
+		i.width.should == 8
+		i.height.should == 8
 
 		thumbs[2].mime_type.should == 'image/png'
-		t, s = identify(thumbs[2].data)
-		t.should == 'PNG'
-		s.should == '4x4'
+		i = identify(thumbs[2].data)
+		i.format.should == 'PNG'
+		i.width.should == 4
+		i.height.should == 4
 	end
 end
 
