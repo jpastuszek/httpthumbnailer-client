@@ -19,7 +19,7 @@ GEM
     git (1.2.5)
     haml (3.1.4)
     httpclient (2.2.3)
-    httpthumbnailer (0.0.4)
+    httpthumbnailer (0.0.5)
       haml (~> 3)
       mongrel (>= 1.1.5)
       rmagick (~> 2)
@@ -64,7 +64,7 @@ DEPENDENCIES
   cucumber
   daemon (~> 1)
   httpclient (>= 2.2.1)
-  httpthumbnailer (~> 0.0.4)
+  httpthumbnailer (~> 0.0.5)
   jeweler (~> 1.6.4)
   rcov
   rdoc (~> 3.9)

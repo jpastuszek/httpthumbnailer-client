@@ -12,5 +12,5 @@ group :development do
   gem "rcov", ">= 0"
   gem "rdoc", "~> 3.9"
   gem "daemon", "~> 1"
-  gem "httpthumbnailer", "~> 0.0.4"
+  gem "httpthumbnailer", "~> 0.0.5"
 end

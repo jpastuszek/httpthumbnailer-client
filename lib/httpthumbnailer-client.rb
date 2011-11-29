@@ -9,6 +9,9 @@ class HTTPThumbnailerClient
 	class UnknownResponseType < ArgumentError
 	end
 
+	class RemoteServerError < ArgumentError
+	end
+
 	class URIBuilder
 		def initialize(service_uri, &block)
 			@specs = []
@@ -48,6 +51,14 @@ class HTTPThumbnailerClient
 		attr_reader :mime_type, :data
 	end
 
+	class ThumbnailingError
+		def initialize(msg)
+			@message = msg
+		end
+
+		attr_reader :message
+	end
+
 	def initialize(server_url)
 		@server_url = server_url
 	end
@@ -62,12 +73,21 @@ class HTTPThumbnailerClient
 			case response.status
 			when 415
 				raise UnsupportedMediaTypeError, response.body.delete("\r")
-			when 500
 			else
+				raise RemoteServerError, response.body.delete("\r")
 			end
 		when /^multipart\/mixed/
 			MultipartResponse.new(content_type, response.body).parts.map do |part|
-				Thumbnail.new(part.header['Content-Type'], part.body)
+				part_content_type = part.header['Content-Type']
+
+				case part_content_type
+				when 'text/plain'
+					ThumbnailingError.new(part.body.delete("\r"))
+				when /^image\//
+					Thumbnail.new(part_content_type, part.body)
+				else
+					raise UnknownResponseType, part_content_type
+				end
 			end
 		else
 			raise UnknownResponseType, content_type
