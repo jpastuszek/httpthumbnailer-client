@@ -3,6 +3,12 @@ require 'httpclient'
 require 'httpthumbnailer-client/multipart_response'
 
 class HTTPThumbnailerClient
+	class UnsupportedMediaTypeError < ArgumentError
+	end
+
+	class UnknownResponseType < ArgumentError
+	end
+
 	class URIBuilder
 		def initialize(service_uri, &block)
 			@specs = []
@@ -48,9 +54,23 @@ class HTTPThumbnailerClient
 
 	def thumbnail(data, &block)
 		uri = URIBuilder.thumbnail(&block)
-		res = HTTPClient.new.request('PUT', "#{@server_url}#{uri}", nil, data)
-		MultipartResponse.new(res.header['Content-Type'].last, res.body).parts.map do |part|
-			Thumbnail.new(part.header['Content-Type'], part.body)
+		response = HTTPClient.new.request('PUT', "#{@server_url}#{uri}", nil, data)
+		content_type = response.header['Content-Type'].last
+
+		case content_type
+		when 'text/plain'
+			case response.status
+			when 415
+				raise UnsupportedMediaTypeError, response.body.delete("\r")
+			when 500
+			else
+			end
+		when /^multipart\/mixed/
+			MultipartResponse.new(content_type, response.body).parts.map do |part|
+				Thumbnail.new(part.header['Content-Type'], part.body)
+			end
+		else
+			raise UnknownResponseType, content_type
 		end
 	end
 end
