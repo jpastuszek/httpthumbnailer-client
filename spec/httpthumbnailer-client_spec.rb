@@ -13,16 +13,23 @@ end
 
 describe HTTPThumbnailerClient do
 	before :all do
-		server_start
-		@data = (spec_dir + 'test.jpg').read
+		log = spec_dir + 'server.log'
+		log.truncate(0)
+		
+		start_server(
+			"httpthumbnailer",
+			'/tmp/httpthumbnailer.pid',
+			log,
+			'http://localhost:3100/'
+		)
 	end
 
 	after :all do
-		server_stop
+		stop_server('/tmp/httpthumbnailer.pid')
 	end
 
 	it "should return set of thumbnails matching specified specification" do
-		thumbs = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail(@data) do
+		thumbs = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail((spec_dir + 'test.jpg').read) do
 			thumbnail 'crop', 6, 3, 'JPEG' 
 			thumbnail 'crop', 8, 8, 'PNG'
 			thumbnail 'crop', 4, 4, 'PNG'
