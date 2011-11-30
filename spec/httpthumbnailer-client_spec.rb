@@ -98,6 +98,7 @@ describe HTTPThumbnailerClient do
 		i.height.should == 3
 
 		thumbs[1].should be_kind_of HTTPThumbnailerClient::ThumbnailingError
+		thumbs[1].type.should == "ArgumentError"
 		thumbs[1].message.should == "Error: ArgumentError: invalid result dimension (0, 0 given)\n"
 
 		thumbs[2].should be_kind_of HTTPThumbnailerClient::Thumbnail
@@ -123,6 +124,7 @@ describe HTTPThumbnailerClient do
 		i.height.should == 3
 
 		thumbs[1].should be_kind_of HTTPThumbnailerClient::ThumbnailingError
+		thumbs[1].type.should == "Thumbnailer::ImageTooLargeError"
 		thumbs[1].message.should =~ /^Error: Thumbnailer::ImageTooLargeError:/
 
 		thumbs[2].should be_kind_of HTTPThumbnailerClient::Thumbnail

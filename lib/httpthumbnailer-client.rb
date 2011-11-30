@@ -57,9 +57,10 @@ class HTTPThumbnailerClient
 	class ThumbnailingError
 		def initialize(msg)
 			@message = msg
+			@type = msg.match(/Error: (.*?): /)[1] rescue NoMethodError
 		end
 
-		attr_reader :message
+		attr_reader :type, :message
 	end
 
 	def initialize(server_url)
