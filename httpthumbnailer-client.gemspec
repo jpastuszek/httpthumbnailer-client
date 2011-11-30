@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "httpthumbnailer-client"
-  s.version = "0.0.2"
+  s.version = "0.0.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jakub Pastuszek"]
-  s.date = "2011-11-29"
+  s.date = "2011-11-30"
   s.description = "Thumbnails images using httpthumbniler server"
   s.email = "jpastuszek@gmail.com"
   s.extra_rdoc_files = [
@@ -33,6 +33,7 @@ Gem::Specification.new do |s|
     "spec/httpthumbnailer-client_spec.rb",
     "spec/multipart_response_spec.rb",
     "spec/spec_helper.rb",
+    "spec/test-large.jpg",
     "spec/test.jpg",
     "spec/test.txt"
   ]
@@ -54,7 +55,7 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<rcov>, [">= 0"])
       s.add_development_dependency(%q<rdoc>, ["~> 3.9"])
       s.add_development_dependency(%q<daemon>, ["~> 1"])
-      s.add_development_dependency(%q<httpthumbnailer>, ["~> 0.0.5"])
+      s.add_development_dependency(%q<httpthumbnailer>, ["~> 0.0.7"])
     else
       s.add_dependency(%q<httpclient>, [">= 2.2.1"])
       s.add_dependency(%q<rspec>, ["~> 2.3.0"])
@@ -64,7 +65,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<rcov>, [">= 0"])
       s.add_dependency(%q<rdoc>, ["~> 3.9"])
       s.add_dependency(%q<daemon>, ["~> 1"])
-      s.add_dependency(%q<httpthumbnailer>, ["~> 0.0.5"])
+      s.add_dependency(%q<httpthumbnailer>, ["~> 0.0.7"])
     end
   else
     s.add_dependency(%q<httpclient>, [">= 2.2.1"])
@@ -75,7 +76,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<rcov>, [">= 0"])
     s.add_dependency(%q<rdoc>, ["~> 3.9"])
     s.add_dependency(%q<daemon>, ["~> 1"])
-    s.add_dependency(%q<httpthumbnailer>, ["~> 0.0.5"])
+    s.add_dependency(%q<httpthumbnailer>, ["~> 0.0.7"])
   end
 end
 
