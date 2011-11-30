@@ -6,6 +6,9 @@ class HTTPThumbnailerClient
 	class UnsupportedMediaTypeError < ArgumentError
 	end
 
+	class ImageTooLargeError < ArgumentError
+	end
+
 	class UnknownResponseType < ArgumentError
 	end
 
@@ -73,6 +76,8 @@ class HTTPThumbnailerClient
 			case response.status
 			when 415
 				raise UnsupportedMediaTypeError, response.body.delete("\r")
+			when 413
+				raise ImageTooLargeError, response.body.delete("\r")
 			else
 				raise RemoteServerError, response.body.delete("\r")
 			end
