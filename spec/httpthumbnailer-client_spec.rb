@@ -123,7 +123,7 @@ describe HTTPThumbnailerClient do
 		i.height.should == 3
 
 		thumbs[1].should be_kind_of HTTPThumbnailerClient::ThumbnailingError
-		thumbs[1].message.should =~ /^Error: Magick::ImageMagickError: cache resources exhausted/
+		thumbs[1].message.should =~ /^Error: Thumbnailer::ImageTooLargeError:/
 
 		thumbs[2].should be_kind_of HTTPThumbnailerClient::Thumbnail
 		thumbs[2].mime_type.should == 'image/png'
