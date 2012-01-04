@@ -70,7 +70,7 @@ describe HTTPThumbnailerClient do
 		lambda {
 			HTTPThumbnailerClient.new('http://localhost:3100').thumbnail((spec_dir + 'test-large.jpg').read) do
 				thumbnail 'crop', 6, 3, 'JPEG' 
-				thumbnail 'crop', 8, 8, 'PNG'
+				thumbnail 'crop', 7000, 7000, 'PNG'
 			end
 		}.should raise_error HTTPThumbnailerClient::ImageTooLargeError
 	end
