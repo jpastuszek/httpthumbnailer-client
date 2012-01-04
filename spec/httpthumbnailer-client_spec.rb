@@ -57,6 +57,15 @@ describe HTTPThumbnailerClient do
 		i.height.should == 4
 	end
 
+	describe "meta data" do
+		it "should provide input image mime type" do
+			thumbs = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail((spec_dir + 'test.jpg').read) do
+				thumbnail 'crop', 6, 3, 'JPEG' 
+			end
+			thumbs.input_mime_type.should == 'image/jpeg'
+		end
+	end
+
 	it "should raise HTTPThumbnailerClient::UnsupportedMediaTypeError error on unsupported media type" do
 		lambda {
 			HTTPThumbnailerClient.new('http://localhost:3100').thumbnail((spec_dir + 'test.txt').read) do

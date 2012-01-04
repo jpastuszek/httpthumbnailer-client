@@ -54,6 +54,10 @@ class HTTPThumbnailerClient
 		attr_reader :mime_type, :data
 	end
 
+	module ThumbnailsInputMimeTypeMeta
+		attr_accessor :input_mime_type
+	end
+
 	class ThumbnailingError
 		def initialize(msg)
 			@message = msg
@@ -83,7 +87,7 @@ class HTTPThumbnailerClient
 				raise RemoteServerError, response.body.delete("\r")
 			end
 		when /^multipart\/mixed/
-			MultipartResponse.new(content_type, response.body).parts.map do |part|
+			thumbnails = MultipartResponse.new(content_type, response.body).parts.map do |part|
 				part_content_type = part.header['Content-Type']
 
 				case part_content_type
@@ -95,6 +99,13 @@ class HTTPThumbnailerClient
 					raise UnknownResponseType, part_content_type
 				end
 			end
+
+			unless response.header['X-Input-Image-Content-Type'].empty?
+				thumbnails.extend(ThumbnailsInputMimeTypeMeta)
+				thumbnails.input_mime_type = response.header['X-Input-Image-Content-Type'].first
+			end
+
+			return thumbnails
 		else
 			raise UnknownResponseType, content_type
 		end
