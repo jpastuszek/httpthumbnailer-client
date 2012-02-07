@@ -33,7 +33,7 @@ thumbnails[1].data 			# => 8x8 thumbnail PNG data String
 thumbnails[2].mime_type		# => 'image/png'
 thumbnails[2].data			# => 4x4 thumbnail PNG data String
 
-thumbs.input_mime_type	# => 'image/jpeg' - detected input image format by API server (content based)
+thumbs.input_mime_type		# => 'image/jpeg' - detected input image format by API server (content based)
 ```
 
 For more details see [RSpec tests](http://github.com/jpastuszek/httpthumbnailer-client/blob/master/spec/httpthumbnailer-client_spec.rb)
