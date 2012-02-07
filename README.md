@@ -18,7 +18,7 @@ data = File.read('image_file.jpg')
 
 # thumbnail image with API server listening on localhost port 3100
 thumbnails = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail(data) do
-	# definition of thumbnail formats - see the API server documentation of available operations, formats and options
+	# definition of thumbnail formats - see the API server documentation for available operations, formats and options
 	thumbnail 'crop', 6, 3, 'JPEG' 
 	thumbnail 'crop', 8, 8, 'PNG'
 	thumbnail 'pad', 4, 4, 'PNG'
