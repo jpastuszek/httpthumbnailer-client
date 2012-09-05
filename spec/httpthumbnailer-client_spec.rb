@@ -14,7 +14,7 @@ end
 describe HTTPThumbnailerClient do
 	before :all do
 		log = spec_dir + 'server.log'
-		log.truncate(0)
+		log.truncate(0) if log.exist?
 		
 		start_server(
 			"httpthumbnailer",
