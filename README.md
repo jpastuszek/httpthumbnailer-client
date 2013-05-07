@@ -50,6 +50,9 @@ For more details see RSpec for [single thumbnail API](http://github.com/jpastusz
 This gem provides `httpthumbnailer-client` command line tool that can be used to thumbnail images via [httpthumbnailer](http://github.com/jpastuszek/httpthumbnailer).
 
 ```bash
+# start thumbnailing server (to stop: kill `cat httpthumbnailer.pid`)
+httpthumbnailer
+
 # thumbnail to standard output
 cat ~/Pictures/compute.jpg | httpthumbnailer-client -t crop,100,200,png > thumbnail.png
 
