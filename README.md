@@ -8,8 +8,6 @@ Ruby client to [httpthumbnailer](http://github.com/jpastuszek/httpthumbnailer) i
 
 ## Usage
 
-Basic usage:
-
 ```ruby
 require 'httpthumbnailer-client'
 
