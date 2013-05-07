@@ -1,4 +1,3 @@
-$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 require 'httpclient'
 require 'httpthumbnailer-client/multipart_response'
 
@@ -27,7 +26,7 @@ class HTTPThumbnailerClient
 		end
 
 		def self.thumbnail(&block)
-			self.new('/thumbnail', &block).get
+			self.new('/thumbnails', &block).get
 		end
 
 		def thumbnail(method, width, height, format = 'JPEG', options = {})
@@ -61,10 +60,9 @@ class HTTPThumbnailerClient
 	class ThumbnailingError
 		def initialize(msg)
 			@message = msg
-			@type = msg.match(/Error: (.*?): /)[1] rescue NoMethodError
 		end
 
-		attr_reader :type, :message
+		attr_reader :message
 	end
 
 	def initialize(server_url)

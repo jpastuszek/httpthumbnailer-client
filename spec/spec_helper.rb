@@ -33,20 +33,20 @@ def get(url)
 end
 
 def start_server(cmd, pid_file, log_file, test_url)
-	stop_server(pid_file)
-
 	fork do
 		Daemon.daemonize(pid_file, log_file)
+		log_file = Pathname.new(log_file)
+		log_file.truncate(0) if log_file.exist?
 		exec(cmd)
 	end
-	Process.wait
+	return unless Process.wait2.last.exitstatus == 0
 
 	ppid = Process.pid
 	at_exit do
 		stop_server(pid_file) if Process.pid == ppid
 	end
 
-	Timeout.timeout(10) do
+	Timeout.timeout(6) do
 		begin
 			get test_url
 		rescue Errno::ECONNREFUSED
@@ -60,6 +60,7 @@ def stop_server(pid_file)
 	pid_file = Pathname.new(pid_file)
 	return unless pid_file.exist?
 
+	STDERR.puts HTTPClient.new.get_content("http://localhost:3100/stats")
 	pid = pid_file.read.strip.to_i
 
 	Timeout.timeout(20) do

@@ -7,17 +7,15 @@ describe HTTPThumbnailerClient::URIBuilder do
 		HTTPThumbnailerClient::URIBuilder.thumbnail do
 			thumbnail 'crop', 16, 16, 'JPEG' 
 			thumbnail 'pad', 32, 64, 'PNG', :magick => 'xdfa', :number => 2
-		end.should == '/thumbnail/crop,16,16,JPEG/pad,32,64,PNG,magick:xdfa,number:2'
+		end.should == '/thumbnails/crop,16,16,JPEG/pad,32,64,PNG,magick:xdfa,number:2'
 	end
 end
 
 describe HTTPThumbnailerClient do
 	before :all do
 		log = spec_dir + 'server.log'
-		log.truncate(0)
-		
 		start_server(
-			"httpthumbnailer",
+			"httpthumbnailer -f -d -l #{log}",
 			'/tmp/httpthumbnailer.pid',
 			log,
 			'http://localhost:3100/'
@@ -107,8 +105,7 @@ describe HTTPThumbnailerClient do
 		i.height.should == 3
 
 		thumbs[1].should be_kind_of HTTPThumbnailerClient::ThumbnailingError
-		thumbs[1].type.should == "ArgumentError"
-		thumbs[1].message.should == "Error: ArgumentError: invalid result dimension (0, 0 given)\n"
+		thumbs[1].message.should =~ /^Error: at least one image dimension is zero/
 
 		thumbs[2].should be_kind_of HTTPThumbnailerClient::Thumbnail
 		thumbs[2].mime_type.should == 'image/png'
@@ -133,8 +130,7 @@ describe HTTPThumbnailerClient do
 		i.height.should == 3
 
 		thumbs[1].should be_kind_of HTTPThumbnailerClient::ThumbnailingError
-		thumbs[1].type.should == "Thumbnailer::ImageTooLargeError"
-		thumbs[1].message.should =~ /^Error: Thumbnailer::ImageTooLargeError:/
+		thumbs[1].message.should =~ /^Error: image too large/
 
 		thumbs[2].should be_kind_of HTTPThumbnailerClient::Thumbnail
 		thumbs[2].mime_type.should == 'image/png'
