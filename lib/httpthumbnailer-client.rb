@@ -24,7 +24,7 @@ class HTTPThumbnailerClient
 			self.new('/thumbnails', &block).get
 		end
 
-		def thumbnail(method, width, height, format = 'JPEG', options = {})
+		def thumbnail(method, width, height, format = 'jpeg', options = {})
 			args = []
 			args << method.to_s
 			args << width.to_s
