@@ -2,17 +2,12 @@ require 'httpclient'
 require 'httpthumbnailer-client/multipart_response'
 
 class HTTPThumbnailerClient
-	class UnsupportedMediaTypeError < ArgumentError
-	end
-
-	class ImageTooLargeError < ArgumentError
-	end
-
-	class UnknownResponseType < ArgumentError
-	end
-
-	class RemoteServerError < ArgumentError
-	end
+	InvalidThumbnailSpecificationError = Class.new ArgumentError
+	ServerResourceNotFoundError = Class.new ArgumentError
+	UnsupportedMediaTypeError = Class.new ArgumentError
+	ImageTooLargeError = Class.new ArgumentError
+	UnknownResponseType = Class.new ArgumentError
+	RemoteServerError = Class.new ArgumentError
 
 	class URIBuilder
 		def initialize(service_uri, &block)
@@ -82,12 +77,16 @@ class HTTPThumbnailerClient
 		case content_type
 		when 'text/plain'
 			case response.status
+			when 400
+				raise InvalidThumbnailSpecificationError, response.body.strip
+			when 404
+				raise ServerResourceNotFoundError, response.body.strip
 			when 415
-				raise UnsupportedMediaTypeError, response.body.delete("\r")
+				raise UnsupportedMediaTypeError, response.body.strip
 			when 413
-				raise ImageTooLargeError, response.body.delete("\r")
+				raise ImageTooLargeError, response.body.strip
 			else
-				raise RemoteServerError, response.body.delete("\r")
+				raise RemoteServerError, response.body.strip
 			end
 		when /^multipart\/mixed/
 			thumbnails = MultipartResponse.new(content_type, response.body).parts.map do |part|
