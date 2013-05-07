@@ -2,6 +2,8 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'rspec'
 
+require 'httpthumbnailer-client'
+
 # Requires supporting files with custom matchers and macros, etc,
 # in ./support/ and its subdirectories.
 Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each {|f| require f}
@@ -19,6 +21,10 @@ end
 
 def spec_dir
 	gem_dir + 'spec'
+end
+
+def support_dir
+	spec_dir + 'support'
 end
 
 def identify(data)

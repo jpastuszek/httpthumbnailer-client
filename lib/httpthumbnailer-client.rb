@@ -13,14 +13,18 @@ class HTTPThumbnailerClient
 		def initialize(service_uri, &block)
 			@specs = []
 			@service_uri = service_uri
-			instance_eval &block
+			instance_eval &block if block
 		end
 
 		def get
 			"#{@service_uri}/#{@specs.join('/')}"
 		end
 
-		def self.thumbnail(&block)
+		def self.thumbnail(*spec)
+			self.new('/thumbnail').thumbnail(*spec).get
+		end
+
+		def self.thumbnails(&block)
 			self.new('/thumbnails', &block).get
 		end
 
@@ -36,6 +40,7 @@ class HTTPThumbnailerClient
 			end
 
 			@specs << args.join(',')
+			self
 		end
 	end
 
@@ -66,15 +71,19 @@ class HTTPThumbnailerClient
 		@keep_alive = options[:keep_alive] || false
 	end
 
-	def thumbnail(data, &block)
-		uri = URIBuilder.thumbnail(&block)
+	def thumbnail(data, *spec, &block)
+		uri = if block
+			URIBuilder.thumbnails(&block)
+		else
+			URIBuilder.thumbnail(*spec)
+		end
 
 		response = @client.request('PUT', "#{@server_url}#{uri}", nil, data, {'Content-Type' => 'image/autodetect'})
 		@client.reset_all unless @keep_alive
 
 		content_type = response.header['Content-Type'].last
 
-		case content_type
+		thumbnails = case content_type
 		when 'text/plain'
 			case response.status
 			when 400
@@ -88,6 +97,8 @@ class HTTPThumbnailerClient
 			else
 				raise RemoteServerError, response.body.strip
 			end
+		when /^image\//
+			Thumbnail.new(content_type, response.body)
 		when /^multipart\/mixed/
 			thumbnails = MultipartResponse.new(content_type, response.body).parts.map do |part|
 				part_content_type = part.header['Content-Type']
@@ -101,16 +112,16 @@ class HTTPThumbnailerClient
 					raise UnknownResponseType, part_content_type
 				end
 			end
-
-			unless response.header['X-Input-Image-Content-Type'].empty?
-				thumbnails.extend(ThumbnailsInputMimeTypeMeta)
-				thumbnails.input_mime_type = response.header['X-Input-Image-Content-Type'].first
-			end
-
-			return thumbnails
 		else
 			raise UnknownResponseType, content_type
 		end
+
+		unless response.header['X-Input-Image-Content-Type'].empty?
+			thumbnails.extend(ThumbnailsInputMimeTypeMeta)
+			thumbnails.input_mime_type = response.header['X-Input-Image-Content-Type'].first
+		end
+
+		return thumbnails
 	rescue HTTPClient::KeepAliveDisconnected
 		raise RemoteServerError, 'empty response'
 	end

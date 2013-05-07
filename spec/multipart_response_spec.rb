@@ -2,8 +2,8 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 require 'httpthumbnailer-client/multipart_response'
 
 describe MultipartResponse do
-	describe "parsing" do
-		it "should privide preamble, parts with headers and epilogue" do
+	describe 'parsing' do
+		it 'should privide preamble, parts with headers and epilogue' do
 			content_type_header = 'multipart/mixed; boundary="cut here"'
 			body = 
 """hello
@@ -36,7 +36,7 @@ world""".gsub!("\n", "\r\n")
 			mr.epilogue.should == "world"
 		end
 
-		it "should privide nil preamble if no prologue sent" do
+		it 'should privide nil preamble if no prologue sent' do
 			content_type_header = 'multipart/mixed; boundary="cut here"'
 			body = 
 """--cut here
@@ -47,7 +47,7 @@ part 1
 			mr.preamble.should be_nil
 		end
 
-		it "should privide nil epilogue if no epilogue sent" do
+		it 'should privide nil epilogue if no epilogue sent' do
 			content_type_header = 'multipart/mixed; boundary="cut here"'
 			body = 
 """--cut here
@@ -58,7 +58,7 @@ part 1
 			mr.epilogue.should be_nil
 		end
 
-		it "should provide default mime type of text/plain if no Content-Type header specified" do
+		it 'should provide default mime type of text/plain if no Content-Type header specified' do
 			content_type_header = 'multipart/mixed; boundary="cut here"'
 			body = 
 """--cut here
@@ -69,14 +69,14 @@ part 1
 			mr.part[0].header['Content-Type'].should == 'text/plain'
 		end
 
-		it "should fail with MultipartResponse::NoBoundaryFoundInContentTypeError if no boundary specified in content type header" do
+		it 'should fail with MultipartResponse::NoBoundaryFoundInContentTypeError if no boundary specified in content type header' do
 			lambda {
 				MultipartResponse.new("fas", "")
 			}.should raise_error MultipartResponse::NoBoundaryFoundInContentTypeError
 		end
 	end
 	
-	it "provides part alias" do
+	it 'provides part alias' do
 		content_type_header = 'multipart/mixed; boundary="cut here"'
 		body = 
 """--cut here
@@ -93,3 +93,4 @@ part 3
 		mr.part[2].body.should == "part 3"
 	end
 end
+
