@@ -8,10 +8,12 @@ Ruby client to [httpthumbnailer](http://github.com/jpastuszek/httpthumbnailer) i
 
 ## Usage
 
+### Ruby API
+
 ```ruby
 require 'httpthumbnailer-client'
 
-# read orginal image data (may be any format supported by ImageMagick/GraphicsMagick installation on the server)
+# read original image data (may be any format supported by ImageMagick/GraphicsMagick installation on the server)
 data = File.read('image_file.jpg')
 
 # with API server listening on localhost port 3100
@@ -42,6 +44,16 @@ thumbnails.input_mime_type	# => 'image/jpeg' - detected input image format by AP
 ```
 
 For more details see RSpec for [single thumbnail API](http://github.com/jpastuszek/httpthumbnailer-client/blob/master/spec/thumbnail_spec.rb) and [multipart API](http://github.com/jpastuszek/httpthumbnailer-client/blob/master/spec/thumbnails_spec.rb).
+
+### CLI tool
+
+This gem provides `httpthumbnailer-client` command line tool that can be used to thumbnail images via `httpthumbnailer`.
+
+   # thumbnail to standard output
+   cat ~/Pictures/compute.jpg | httpthumbnailer-client -t crop,100,200,png > thumbnail.png
+   
+   # generate multiple thumbnails
+   cat ~/Pictures/compute.jpg | httpthumbnailer-client -t crop,100,200,jpeg,quality:100 -t pad,200,200,png test.jpg test.png
 
 ## Contributing to httpthumbnailer-client
  

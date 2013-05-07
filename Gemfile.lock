@@ -61,6 +61,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  cli (~> 1.1.0)
   cucumber
   daemon (~> 1)
   httpclient (>= 2.2.1)

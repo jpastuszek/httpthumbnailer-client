@@ -1,0 +1,73 @@
+#!/usr/bin/env ruby
+require 'cli'
+require 'pathname'
+
+$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
+require 'httpthumbnailer-client'
+
+def parse_spec(spec)
+	method, width, height, format, *options = *spec.split(',')
+	fail "missing thumbnail specification argument in: #{spec}" unless method and width and height and format
+
+	opts = {}
+	options.each do |option|
+	key, value = option.split(':')
+		fail "missing option key or value in specifiaction: #{spec}" unless key and value
+	opts[key] = value
+	end
+
+	[method, width, height, format, opts]
+end
+
+settings = CLI.new do
+	description 'Client to httpthumbnailer image scaling and conversion HTTP API server'
+	stdin :image_data,
+		description: 'image to be thumbnailed'
+	option :host,
+		short: :H,
+		description: 'host on which the httpthumbnailer is running',
+		default: 'localhost'
+	option :port,
+		short: :p,
+		description: 'TCP port on which the httpthumbnailer is listening',
+		cast: Integer,
+		default: 3100
+	options :thumbnail,
+		short: :t,
+		description: 'thumbnail specification in format <operation type>,<width>,<height>,<format>[,<option key>:<option value>]* - see httpthumbnailer documenation for more information',
+		required: true
+	arguments :output_file_name,
+		short: :f,
+		description: 'file name to store resulting thumbnail; when multiple --thumbail options are used the same number of output file names should be specified; use "-" to write to STDOUT',
+		default: '-'
+	version (Pathname.new(__FILE__).dirname + '..' + 'VERSION').read
+end.parse! do |settings|
+	STDERR.puts "Warning: there is more thumbnail specifications given than output file names; some thumbnails will not be saved" if settings.thumbnail.length > settings.output_file_name.length
+	fail 'only one thumbnail can be written to STDOUT' if settings.output_file_name.count('-') > 1
+	settings.thumbnail = settings.thumbnail.map{|spec| parse_spec(spec)}
+end
+
+thumbnailer = HTTPThumbnailerClient.new("http://#{settings.host}:#{settings.port}")
+
+thumbnails = if settings.thumbnail.length == 1
+	[thumbnailer.thumbnail(settings.stdin.read, *settings.thumbnail.first)]
+else
+	thumbnailer.thumbnail(settings.stdin.read) do
+		settings.thumbnail.each do |spec|
+			thumbnail *spec
+		end
+	end
+end
+
+thumbnails.zip(settings.output_file_name).select do |thumbnail, out_file| 
+	out_file 
+end.each do |thumbnail, out_file|
+	if out_file == '-'
+		STDOUT.write thumbnail.data
+	else
+		File.open(out_file, 'w') do |file|
+			file.write thumbnail.data
+		end
+	end
+end
+

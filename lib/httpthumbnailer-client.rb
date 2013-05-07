@@ -105,7 +105,7 @@ class HTTPThumbnailerClient
 
 				case part_content_type
 				when 'text/plain'
-					ThumbnailingError.new(part.body.delete("\r"))
+					ThumbnailingError.new(part.body.strip)
 				when /^image\//
 					Thumbnail.new(part_content_type, part.body)
 				else
