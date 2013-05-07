@@ -47,13 +47,15 @@ For more details see RSpec for [single thumbnail API](http://github.com/jpastusz
 
 ### CLI tool
 
-This gem provides `httpthumbnailer-client` command line tool that can be used to thumbnail images via `httpthumbnailer`.
+This gem provides `httpthumbnailer-client` command line tool that can be used to thumbnail images via [httpthumbnailer](http://github.com/jpastuszek/httpthumbnailer).
 
-   # thumbnail to standard output
-   cat ~/Pictures/compute.jpg | httpthumbnailer-client -t crop,100,200,png > thumbnail.png
-   
-   # generate multiple thumbnails
-   cat ~/Pictures/compute.jpg | httpthumbnailer-client -t crop,100,200,jpeg,quality:100 -t pad,200,200,png test.jpg test.png
+```bash
+# thumbnail to standard output
+cat ~/Pictures/compute.jpg | httpthumbnailer-client -t crop,100,200,png > thumbnail.png
+
+# generate multiple thumbnails
+cat ~/Pictures/compute.jpg | httpthumbnailer-client -t crop,100,200,jpeg,quality:100 -t pad,200,200,png thumbnail1.jpg thumbnail2.png
+```
 
 ## Contributing to httpthumbnailer-client
  
