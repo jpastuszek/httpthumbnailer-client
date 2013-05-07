@@ -13,19 +13,26 @@ Basic usage:
 ```ruby
 require 'httpthumbnailer-client'
 
-# read orginal image data (may be any format supported by ImageMagick installation on the server)
+# read orginal image data (may be any format supported by ImageMagick/GraphicsMagick installation on the server)
 data = File.read('image_file.jpg')
 
-# thumbnail image with API server listening on localhost port 3100
+# with API server listening on localhost port 3100
+# see the API server documentation for available operations, formats and options
+
+# generate single thumbnail from image data (single thumbnail API)
+thumbnail = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail(data, 'crop', 6, 3, 'jpeg')
+thumbnail.mime_type 	# => 'image/jpeg'
+thumbnail.data 			# => 6x3 thumbnail JPEG data String
+
+# generate set of thumbnails from image data (multipart API)
 thumbnails = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail(data) do
-	# definition of thumbnail formats - see the API server documentation for available operations, formats and options
-	thumbnail 'crop', 6, 3, 'JPEG' 
-	thumbnail 'crop', 8, 8, 'PNG'
-	thumbnail 'pad', 4, 4, 'PNG'
+	thumbnail 'crop', 6, 3, 'jpeg' 
+	thumbnail 'crop', 8, 8, 'png'
+	thumbnail 'pad', 4, 4, 'png'
 end
 
 thumbnails[0].mime_type 	# => 'image/jpeg'
-thumbnails[0].data 			# => 6x3 thumbnail JPEG data Strine
+thumbnails[0].data 			# => 6x3 thumbnail JPEG data String
 
 thumbnails[1].mime_type 	# => 'image/png'
 thumbnails[1].data 			# => 8x8 thumbnail PNG data String
@@ -36,7 +43,7 @@ thumbnails[2].data			# => 4x4 thumbnail PNG data String
 thumbnails.input_mime_type	# => 'image/jpeg' - detected input image format by API server (content based)
 ```
 
-For more details see [RSpec tests](http://github.com/jpastuszek/httpthumbnailer-client/blob/master/spec/httpthumbnailer-client_spec.rb)
+For more details see RSpec for [single thumbnail API](http://github.com/jpastuszek/httpthumbnailer-client/blob/master/spec/thumbnail_spec.rb) and [multipart API](http://github.com/jpastuszek/httpthumbnailer-client/blob/master/spec/thumbnails_spec.rb).
 
 ## Contributing to httpthumbnailer-client
  
@@ -50,6 +57,6 @@ For more details see [RSpec tests](http://github.com/jpastuszek/httpthumbnailer-
 
 ## Copyright
 
-Copyright (c) 2012 Jakub Pastuszek. See LICENSE.txt for
+Copyright (c) 2013 Jakub Pastuszek. See LICENSE.txt for
 further details.
 
