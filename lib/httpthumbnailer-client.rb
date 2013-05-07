@@ -65,13 +65,18 @@ class HTTPThumbnailerClient
 		attr_reader :message
 	end
 
-	def initialize(server_url)
+	def initialize(server_url, options = {})
 		@server_url = server_url
+		@client = HTTPClient.new
+		@keep_alive = options[:keep_alive] || false
 	end
 
 	def thumbnail(data, &block)
 		uri = URIBuilder.thumbnail(&block)
-		response = HTTPClient.new.request('PUT', "#{@server_url}#{uri}", nil, data)
+
+		response = @client.request('PUT', "#{@server_url}#{uri}", nil, data, {'Content-Type' => 'image/autodetect'})
+		@client.reset_all unless @keep_alive
+
 		content_type = response.header['Content-Type'].last
 
 		case content_type
@@ -107,6 +112,8 @@ class HTTPThumbnailerClient
 		else
 			raise UnknownResponseType, content_type
 		end
+	rescue HTTPClient::KeepAliveDisconnected
+		raise RemoteServerError, 'empty response'
 	end
 end
 
