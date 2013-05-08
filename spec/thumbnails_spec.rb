@@ -17,31 +17,31 @@ describe HTTPThumbnailerClient, 'multipart API' do
 
 	it 'should return set of thumbnails matching specifications' do
 		thumbs = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail((support_dir + 'test.jpg').read) do
-			thumbnail 'crop', 6, 3, 'jpeg' 
-			thumbnail 'crop', 8, 8, 'png'
-			thumbnail 'crop', 4, 4, 'png'
+			thumbnail 'crop', 60, 30, 'jpeg' 
+			thumbnail 'crop', 80, 80, 'png'
+			thumbnail 'crop', 40, 40, 'png'
 		end
 
 		thumbs[0].should be_kind_of HTTPThumbnailerClient::Thumbnail
 		thumbs[0].mime_type.should == 'image/jpeg'
 		i = identify(thumbs[0].data)
 		i.format.should == 'JPEG'
-		i.width.should == 6
-		i.height.should == 3
+		i.width.should == 60
+		i.height.should == 30
 
 		thumbs[1].should be_kind_of HTTPThumbnailerClient::Thumbnail
 		thumbs[1].mime_type.should == 'image/png'
 		i = identify(thumbs[1].data)
 		i.format.should == 'PNG'
-		i.width.should == 8
-		i.height.should == 8
+		i.width.should == 80
+		i.height.should == 80
 
 		thumbs[2].should be_kind_of HTTPThumbnailerClient::Thumbnail
 		thumbs[2].mime_type.should == 'image/png'
 		i = identify(thumbs[2].data)
 		i.format.should == 'PNG'
-		i.width.should == 4
-		i.height.should == 4
+		i.width.should == 40
+		i.height.should == 40
 	end
 
 	describe 'meta data' do

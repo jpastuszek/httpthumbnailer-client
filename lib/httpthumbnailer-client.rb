@@ -105,7 +105,13 @@ class HTTPThumbnailerClient
 			parser = MultipartParser::Reader.new(MultipartParser::Reader.extract_boundary_value(content_type))
 			parser.on_part do |part|
 				part_content_type = part.headers['content-type'] or raise InvalidMultipartResponseError, 'missing Content-Type header in multipart part'
-				part.on_data do |data|
+				data = ''
+
+				part.on_data do |partial_data|
+					data << partial_data
+				end
+
+				part.on_end do
 					case part_content_type
 					when 'text/plain'
 						parts << ThumbnailingError.new(data.strip)
