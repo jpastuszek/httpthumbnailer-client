@@ -2,6 +2,7 @@ source "http://rubygems.org"
 
 gem "httpclient", ">= 2.2.1"
 gem "cli", "~> 1.1.0"
+gem "multipart-parser", "~> 0.1.1"
 
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.

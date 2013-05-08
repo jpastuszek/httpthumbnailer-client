@@ -1,5 +1,5 @@
 require 'httpclient'
-require 'httpthumbnailer-client/multipart_response'
+require 'multipart_parser/reader'
 
 class HTTPThumbnailerClient
 	InvalidThumbnailSpecificationError = Class.new ArgumentError
@@ -8,6 +8,7 @@ class HTTPThumbnailerClient
 	ImageTooLargeError = Class.new ArgumentError
 	UnknownResponseType = Class.new ArgumentError
 	RemoteServerError = Class.new ArgumentError
+	InvalidMultipartResponseError = Class.new ArgumentError
 
 	class URIBuilder
 		def initialize(service_uri, &block)
@@ -100,18 +101,25 @@ class HTTPThumbnailerClient
 		when /^image\//
 			Thumbnail.new(content_type, response.body)
 		when /^multipart\/mixed/
-			thumbnails = MultipartResponse.new(content_type, response.body).parts.map do |part|
-				part_content_type = part.header['Content-Type']
-
-				case part_content_type
-				when 'text/plain'
-					ThumbnailingError.new(part.body.strip)
-				when /^image\//
-					Thumbnail.new(part_content_type, part.body)
-				else
-					raise UnknownResponseType, part_content_type
+			parts = []
+			parser = MultipartParser::Reader.new(MultipartParser::Reader.extract_boundary_value(content_type))
+			parser.on_part do |part|
+				part_content_type = part.headers['content-type'] or raise InvalidMultipartResponseError, 'missing Content-Type header in multipart part'
+				part.on_data do |data|
+					case part_content_type
+					when 'text/plain'
+						parts << ThumbnailingError.new(data.strip)
+					when /^image\//
+						parts << Thumbnail.new(part_content_type, data)
+					else
+						raise UnknownResponseType, part_content_type
+					end
 				end
 			end
+
+			parser.write response.body
+			parser.ended? or raise InvalidMultipartResponseError, 'truncated multipart message'
+			parts
 		else
 			raise UnknownResponseType, content_type
 		end
