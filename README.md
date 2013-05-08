@@ -20,25 +20,25 @@ data = File.read('image_file.jpg')
 # see the API server documentation for available operations, formats and options
 
 # generate single thumbnail from image data (single thumbnail API)
-thumbnail = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail(data, 'crop', 6, 3, 'jpeg')
+thumbnail = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail(data, 'crop', 60, 30, 'jpeg')
 thumbnail.mime_type 	# => 'image/jpeg'
-thumbnail.data 			# => 6x3 thumbnail JPEG data String
+thumbnail.data 			# => 60x30 thumbnail JPEG data String
 
 # generate set of thumbnails from image data (multipart API)
 thumbnails = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail(data) do
-	thumbnail 'crop', 6, 3, 'jpeg' 
-	thumbnail 'crop', 8, 8, 'png'
-	thumbnail 'pad', 4, 4, 'png'
+	thumbnail 'crop', 60, 30, 'jpeg' 
+	thumbnail 'crop', 80, 80, 'png'
+	thumbnail 'pad', 40, 40, 'png'
 end
 
 thumbnails[0].mime_type 	# => 'image/jpeg'
-thumbnails[0].data 			# => 6x3 thumbnail JPEG data String
+thumbnails[0].data 			# => 60x30 thumbnail JPEG data String
 
 thumbnails[1].mime_type 	# => 'image/png'
-thumbnails[1].data 			# => 8x8 thumbnail PNG data String
+thumbnails[1].data 			# => 80x80 thumbnail PNG data String
 
 thumbnails[2].mime_type		# => 'image/png'
-thumbnails[2].data			# => 4x4 thumbnail PNG data String
+thumbnails[2].data			# => 40x40 thumbnail PNG data String
 
 thumbnails.input_mime_type	# => 'image/jpeg' - detected input image format by API server (content based)
 ```
