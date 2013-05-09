@@ -59,10 +59,12 @@ class HTTPThumbnailerClient
 	end
 
 	class ThumbnailingError
-		def initialize(msg)
+		def initialize(status, msg)
+			@status = status
 			@message = msg
 		end
 
+		attr_reader :status
 		attr_reader :message
 	end
 
@@ -105,6 +107,7 @@ class HTTPThumbnailerClient
 			parser = MultipartParser::Reader.new(MultipartParser::Reader.extract_boundary_value(content_type))
 			parser.on_part do |part|
 				part_content_type = part.headers['content-type'] or raise InvalidMultipartResponseError, 'missing Content-Type header in multipart part'
+				part_status = part.headers['status']
 				data = ''
 
 				part.on_data do |partial_data|
@@ -114,7 +117,8 @@ class HTTPThumbnailerClient
 				part.on_end do
 					case part_content_type
 					when 'text/plain'
-						parts << ThumbnailingError.new(data.strip)
+						part_status or raise InvalidMultipartResponseError, 'missing Status header in error part (text/plain)'
+						parts << ThumbnailingError.new(part_status.to_i, data.strip)
 					when /^image\//
 						parts << Thumbnail.new(part_content_type, data)
 					else

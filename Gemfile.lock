@@ -36,7 +36,7 @@ GEM
     gherkin (2.6.7)
       json (>= 1.4.6)
     git (1.2.5)
-    httpclient (2.2.3)
+    httpclient (2.3.3)
     jeweler (1.8.4)
       bundler (~> 1.0)
       git (>= 1.2.5)
@@ -72,7 +72,7 @@ DEPENDENCIES
   cli (~> 1.1.0)
   cucumber
   daemon (~> 1)
-  httpclient (>= 2.2.1)
+  httpclient (>= 2.3)
   httpthumbnailer!
   jeweler (~> 1.8.4)
   multipart-parser (~> 0.1.1)

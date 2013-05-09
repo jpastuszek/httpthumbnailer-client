@@ -1,6 +1,6 @@
 source "http://rubygems.org"
 
-gem "httpclient", ">= 2.2.1"
+gem "httpclient", ">= 2.3"
 gem "cli", "~> 1.1.0"
 gem "multipart-parser", "~> 0.1.1"
 

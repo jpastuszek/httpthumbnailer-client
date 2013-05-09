@@ -69,7 +69,8 @@ describe HTTPThumbnailerClient, 'multipart API' do
 			i.height.should == 3
 
 			thumbs[1].should be_kind_of HTTPThumbnailerClient::ThumbnailingError
-			thumbs[1].message.should =~ /^Error: at least one image dimension is zero/
+			thumbs[1].message.should =~ /^at least one image dimension is zero/
+			thumbs[1].status.should == 400
 
 			thumbs[2].should be_kind_of HTTPThumbnailerClient::Thumbnail
 			thumbs[2].mime_type.should == 'image/png'
@@ -94,7 +95,8 @@ describe HTTPThumbnailerClient, 'multipart API' do
 			i.height.should == 3
 
 			thumbs[1].should be_kind_of HTTPThumbnailerClient::ThumbnailingError
-			thumbs[1].message.should =~ /^Error: image too large/
+			thumbs[1].message.should =~ /^image too large/
+			thumbs[1].status.should == 413
 
 			thumbs[2].should be_kind_of HTTPThumbnailerClient::Thumbnail
 			thumbs[2].mime_type.should == 'image/png'
