@@ -74,6 +74,9 @@ class HTTPThumbnailerClient
 		@keep_alive = options[:keep_alive] || false
 	end
 
+	attr_reader :server_url
+	attr_reader :keep_alive
+
 	def thumbnail(data, *spec, &block)
 		uri = if block
 			URIBuilder.thumbnails(&block)
@@ -142,6 +145,10 @@ class HTTPThumbnailerClient
 		return thumbnails
 	rescue HTTPClient::KeepAliveDisconnected
 		raise RemoteServerError, 'empty response'
+	end
+
+	def inspect
+		"#<#{self.class.name} server_url=#{server_url.inspect} keep_alive=#{keep_alive.inspect}>"
 	end
 end
 
