@@ -2,13 +2,14 @@ require 'httpclient'
 require 'multipart_parser/reader'
 
 class HTTPThumbnailerClient
-	InvalidThumbnailSpecificationError = Class.new ArgumentError
-	ServerResourceNotFoundError = Class.new ArgumentError
-	UnsupportedMediaTypeError = Class.new ArgumentError
-	ImageTooLargeError = Class.new ArgumentError
-	UnknownResponseType = Class.new ArgumentError
-	RemoteServerError = Class.new ArgumentError
-	InvalidMultipartResponseError = Class.new ArgumentError
+	HTTPThumbnailerClientError = Class.new ArgumentError
+	InvalidThumbnailSpecificationError = Class.new HTTPThumbnailerClientError
+	ServerResourceNotFoundError = Class.new HTTPThumbnailerClientError
+	UnsupportedMediaTypeError = Class.new HTTPThumbnailerClientError
+	ImageTooLargeError = Class.new HTTPThumbnailerClientError
+	UnknownResponseType = Class.new HTTPThumbnailerClientError
+	RemoteServerError = Class.new HTTPThumbnailerClientError
+	InvalidMultipartResponseError = Class.new HTTPThumbnailerClientError
 
 	class URIBuilder
 		def initialize(service_uri, &block)
