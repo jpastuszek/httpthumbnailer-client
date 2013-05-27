@@ -38,6 +38,8 @@ class HTTPThumbnailerClient
 			args << format.to_s
 
 			options.keys.sort{|a, b| a.to_s <=> b.to_s}.each do |key|
+				raise InvalidThumbnailSpecificationError.new("empty option key for value '#{options[key]}'") if key.nil? || key.to_s.empty? 
+				raise InvalidThumbnailSpecificationError.new("missing option value for key '#{key}'") if options[key].nil? || options[key].to_s.empty? 
 				args << "#{key}:#{options[key]}"
 			end
 
