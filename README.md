@@ -1,10 +1,12 @@
-# httpthumbnailer-client
+# HTTP Thubnailer Client
 
 Ruby client to [httpthumbnailer](http://github.com/jpastuszek/httpthumbnailer) image scaling and conversion HTTP API server.
 
 ## Installing
 
-    gem install httpthumbnailer-client
+```bash
+gem install httpthumbnailer-client
+```
 
 ## Usage
 
@@ -60,7 +62,7 @@ cat ~/Pictures/compute.jpg | httpthumbnailer-client -t crop,100,200,png > thumbn
 cat ~/Pictures/compute.jpg | httpthumbnailer-client -t crop,100,200,jpeg,quality:100 -t pad,200,200,png thumbnail1.jpg thumbnail2.png
 ```
 
-## Contributing to httpthumbnailer-client
+## Contributing to HTTP Thubnailer Client
  
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
 * Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it

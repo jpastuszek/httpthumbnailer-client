@@ -2,13 +2,56 @@ require 'httpclient'
 require 'multipart_parser/reader'
 
 class HTTPThumbnailerClient
-	HTTPThumbnailerClientError = Class.new ArgumentError
-	InvalidThumbnailSpecificationError = Class.new HTTPThumbnailerClientError
-	ServerResourceNotFoundError = Class.new HTTPThumbnailerClientError
-	UnsupportedMediaTypeError = Class.new HTTPThumbnailerClientError
-	ImageTooLargeError = Class.new HTTPThumbnailerClientError
+	HTTPThumbnailerClientError = Class.new(ArgumentError)
+
+	InvalidThumbnailSpecificationError = Class.new(HTTPThumbnailerClientError)
+	ServerResourceNotFoundError = Class.new(HTTPThumbnailerClientError)
+	UnsupportedMediaTypeError = Class.new(HTTPThumbnailerClientError)
+	ImageTooLargeError = Class.new(HTTPThumbnailerClientError)
+	RemoteServerError = Class.new(HTTPThumbnailerClientError)
+
+	@@errors = {}
+
+	module Status
+		def status=(st)
+			@status = st
+		end
+
+		def status
+			@status
+		end
+
+		module Instance
+			def status
+				defined?(self.class.status) ? self.class.status : 500
+			end
+		end
+
+		def self.extended(klass)
+			klass.instance_eval do
+				include Instance
+			end
+		end
+	end
+
+	def self.assign_status_code(error, status)
+		error.extend Status
+		error.status = status
+		@@errors[status] = error
+		@@errors[error] = status
+	end
+
+	assign_status_code(InvalidThumbnailSpecificationError, 400)
+	assign_status_code(ServerResourceNotFoundError, 404)
+	assign_status_code(UnsupportedMediaTypeError, 415)
+	assign_status_code(ImageTooLargeError, 413)
+	assign_status_code(RemoteServerError, 500)
+
+	def error_for_status(status, body)
+		@@errors.fetch(status){|err| RemoteServerError}.new(body)
+	end
+
 	UnknownResponseType = Class.new HTTPThumbnailerClientError
-	RemoteServerError = Class.new HTTPThumbnailerClientError
 	InvalidMultipartResponseError = Class.new HTTPThumbnailerClientError
 
 	class URIBuilder
@@ -31,10 +74,15 @@ class HTTPThumbnailerClient
 		end
 
 		def thumbnail(method, width, height, format = 'jpeg', options = {})
+			width = width.to_s
+			height = height.to_s
+
 			args = []
 			args << method.to_s
-			args << width.to_s
-			args << height.to_s
+			width !~ /^([0-9]+|input)$/ and raise InvalidThumbnailSpecificationError.new("bad dimension value: #{width}")
+			args << width
+			height !~ /^([0-9]+|input)$/ and raise InvalidThumbnailSpecificationError.new("bad dimension value: #{height}")
+			args << height
 			args << format.to_s
 
 			options.keys.sort{|a, b| a.to_s <=> b.to_s}.each do |key|
@@ -61,16 +109,6 @@ class HTTPThumbnailerClient
 		attr_accessor :input_mime_type
 	end
 
-	class ThumbnailingError
-		def initialize(status, msg)
-			@status = status
-			@message = msg
-		end
-
-		attr_reader :status
-		attr_reader :message
-	end
-
 	def initialize(server_url, options = {})
 		@server_url = server_url
 		@client = HTTPClient.new
@@ -94,18 +132,7 @@ class HTTPThumbnailerClient
 
 		thumbnails = case content_type
 		when 'text/plain'
-			case response.status
-			when 400
-				raise InvalidThumbnailSpecificationError, response.body.strip
-			when 404
-				raise ServerResourceNotFoundError, response.body.strip
-			when 415
-				raise UnsupportedMediaTypeError, response.body.strip
-			when 413
-				raise ImageTooLargeError, response.body.strip
-			else
-				raise RemoteServerError, response.body.strip
-			end
+			raise error_for_status(response.status, response.body)
 		when /^image\//
 			Thumbnail.new(content_type, response.body)
 		when /^multipart\/mixed/
@@ -124,7 +151,12 @@ class HTTPThumbnailerClient
 					case part_content_type
 					when 'text/plain'
 						part_status or raise InvalidMultipartResponseError, 'missing Status header in error part (text/plain)'
-						parts << ThumbnailingError.new(part_status.to_i, data.strip)
+
+						begin
+							raise error_for_status(part_status.to_i, data.strip)
+						rescue HTTPThumbnailerClientError => error # raise for stack trace
+							parts << error
+						end
 					when /^image\//
 						parts << Thumbnail.new(part_content_type, data)
 					else

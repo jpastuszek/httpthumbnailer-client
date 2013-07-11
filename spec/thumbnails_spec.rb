@@ -53,7 +53,7 @@ describe HTTPThumbnailerClient, 'multipart API' do
 		end
 	end
 
-	describe 'returns HTTPThumbnailerClient::ThumbnailingError object within set of returned thumbnails' do
+	describe 'returns HTTPThumbnailerClient::HTTPThumbnailerClientError object within set of returned thumbnails' do
 		it 'in case of error with particluar thumbanil' do
 			thumbs = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail((support_dir + 'test.jpg').read) do
 				thumbnail 'crop', 6, 3, 'jpeg' 
@@ -68,7 +68,7 @@ describe HTTPThumbnailerClient, 'multipart API' do
 			i.width.should == 6
 			i.height.should == 3
 
-			thumbs[1].should be_kind_of HTTPThumbnailerClient::ThumbnailingError
+			thumbs[1].should be_kind_of HTTPThumbnailerClient::HTTPThumbnailerClientError
 			thumbs[1].message.should =~ /^at least one image dimension is zero/
 			thumbs[1].status.should == 400
 
@@ -94,7 +94,7 @@ describe HTTPThumbnailerClient, 'multipart API' do
 			i.width.should == 6
 			i.height.should == 3
 
-			thumbs[1].should be_kind_of HTTPThumbnailerClient::ThumbnailingError
+			thumbs[1].should be_kind_of HTTPThumbnailerClient::HTTPThumbnailerClientError
 			thumbs[1].message.should =~ /^image too large/
 			thumbs[1].status.should == 413
 
