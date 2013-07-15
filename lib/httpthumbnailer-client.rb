@@ -112,6 +112,12 @@ class HTTPThumbnailerClient
 	def initialize(server_url, options = {})
 		@server_url = server_url
 		@client = HTTPClient.new
+
+		# long timeouts for big image data
+		@client.send_timeout = options[:send_timeout] || 300
+		@client.receive_timeout = options[:receive_timeout] || 300
+
+		# don't use keep alive by default since backend won't support it any way unless fronted with nginx or similar
 		@keep_alive = options[:keep_alive] || false
 	end
 
