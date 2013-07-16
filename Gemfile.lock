@@ -3,15 +3,14 @@ PATH
   specs:
     httpthumbnailer (1.0.0)
       rmagick (~> 2)
-      unicorn-cuba-base
+      unicorn-cuba-base (~> 1.0)
 
 PATH
   remote: ../unicorn-cuba-base
   specs:
-    unicorn-cuba-base (0.0.0)
+    unicorn-cuba-base (1.0.0)
       cli (~> 1.1.0)
       cuba (~> 3.0)
-      daemon (~> 1)
       facter (~> 1.6.11)
       raindrops (~> 0.11)
       ruby-ip (~> 0.9)
@@ -60,7 +59,7 @@ GEM
     rspec-mocks (2.13.1)
     ruby-ip (0.9.1)
     term-ansicolor (1.0.7)
-    unicorn (4.6.2)
+    unicorn (4.6.3)
       kgio (~> 2.6)
       rack
       raindrops (~> 0.7)
