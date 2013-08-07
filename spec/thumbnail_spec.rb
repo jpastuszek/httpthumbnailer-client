@@ -31,6 +31,12 @@ describe HTTPThumbnailerClient, 'single thumbnail API' do
 			thumbnail = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail((support_dir + 'test.jpg').read, 'crop', 6, 3, 'jpeg')
 			thumbnail.input_mime_type.should == 'image/jpeg'
 		end
+
+		it 'should provide input image size' do
+			thumbnail = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail((support_dir + 'test.jpg').read, 'crop', 6, 3, 'jpeg')
+			thumbnail.input_width.should == 509
+			thumbnail.input_height.should == 719
+		end
 	end
 
 	describe 'general error handling' do

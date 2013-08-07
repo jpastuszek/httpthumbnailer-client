@@ -105,8 +105,10 @@ class HTTPThumbnailerClient
 		attr_reader :mime_type, :data
 	end
 
-	module ThumbnailsInputMimeTypeMeta
+	module ThumbnailsInputIdentifyMeta
 		attr_accessor :input_mime_type
+		attr_accessor :input_width
+		attr_accessor :input_height
 	end
 
 	def initialize(server_url, options = {})
@@ -178,10 +180,10 @@ class HTTPThumbnailerClient
 			raise UnknownResponseType, content_type
 		end
 
-		unless response.header['X-Input-Image-Content-Type'].empty?
-			thumbnails.extend(ThumbnailsInputMimeTypeMeta)
-			thumbnails.input_mime_type = response.header['X-Input-Image-Content-Type'].first
-		end
+		thumbnails.extend(ThumbnailsInputIdentifyMeta)
+		thumbnails.input_mime_type = response.header['X-Input-Image-Content-Type'].first unless response.header['X-Input-Image-Content-Type'].empty?
+		thumbnails.input_width = response.header['X-Input-Image-Width'].first.to_i unless response.header['X-Input-Image-Width'].empty?
+		thumbnails.input_height = response.header['X-Input-Image-Height'].first.to_i unless response.header['X-Input-Image-Height'].empty?
 
 		return thumbnails
 	rescue HTTPClient::KeepAliveDisconnected

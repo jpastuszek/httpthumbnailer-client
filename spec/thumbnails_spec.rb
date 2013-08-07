@@ -51,6 +51,14 @@ describe HTTPThumbnailerClient, 'multipart API' do
 			end
 			thumbs.input_mime_type.should == 'image/jpeg'
 		end
+
+		it 'should provide input image size' do
+			thumbs = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail((support_dir + 'test.jpg').read) do
+				thumbnail 'crop', 6, 3, 'jpeg' 
+			end
+			thumbs.input_width.should == 509
+			thumbs.input_height.should == 719
+		end
 	end
 
 	describe 'returns HTTPThumbnailerClient::HTTPThumbnailerClientError object within set of returned thumbnails' do
