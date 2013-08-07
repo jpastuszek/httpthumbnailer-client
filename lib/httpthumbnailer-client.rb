@@ -1,4 +1,6 @@
 require 'httpclient'
+require 'ostruct'
+require 'json'
 require 'multipart_parser/reader'
 
 class HTTPThumbnailerClient
@@ -111,6 +113,19 @@ class HTTPThumbnailerClient
 		attr_accessor :input_height
 	end
 
+	class ImageID
+		def initialize(body)
+			id = JSON.load(body)
+			@mime_type = id['mimeType']
+			@width = id['width']
+			@height = id['height']
+		end
+
+		attr_reader :mime_type
+		attr_reader :width
+		attr_reader :height
+	end
+
 	def initialize(server_url, options = {})
 		@server_url = server_url
 		@client = HTTPClient.new
@@ -181,11 +196,32 @@ class HTTPThumbnailerClient
 		end
 
 		thumbnails.extend(ThumbnailsInputIdentifyMeta)
-		thumbnails.input_mime_type = response.header['X-Input-Image-Content-Type'].first unless response.header['X-Input-Image-Content-Type'].empty?
+		thumbnails.input_mime_type = response.header['X-Input-Image-Content-Type'].first unless response.header['X-Input-Image-Content-Type'].empty? # deprecated
+		thumbnails.input_mime_type = response.header['X-Input-Image-Mime-Type'].first unless response.header['X-Input-Image-Mime-Type'].empty?
 		thumbnails.input_width = response.header['X-Input-Image-Width'].first.to_i unless response.header['X-Input-Image-Width'].empty?
 		thumbnails.input_height = response.header['X-Input-Image-Height'].first.to_i unless response.header['X-Input-Image-Height'].empty?
 
 		return thumbnails
+	rescue HTTPClient::KeepAliveDisconnected
+		raise RemoteServerError, 'empty response'
+	end
+
+	def identify(data)
+		response = @client.request('PUT', "#{@server_url}/identify", nil, data, {'Content-Type' => 'image/autodetect'})
+		@client.reset_all unless @keep_alive
+
+		content_type = response.header['Content-Type'].last
+
+		image_id = case content_type
+		when 'text/plain'
+			raise error_for_status(response.status, response.body)
+		when 'application/json'
+			ImageID.new(response.body)
+		else
+			raise UnknownResponseType, content_type
+		end
+
+		return image_id
 	rescue HTTPClient::KeepAliveDisconnected
 		raise RemoteServerError, 'empty response'
 	end
