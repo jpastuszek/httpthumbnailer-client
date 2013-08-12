@@ -99,16 +99,25 @@ class HTTPThumbnailerClient
 	end
 
 	class Thumbnail
-		def initialize(mime_type, data)
+		def initialize(mime_type, width, height, data)
 			@mime_type = mime_type
 			@data = data
+
+			# added to thumbnailer v1.1.0 so may be nil for older server
+			@width = width.to_i if width
+			@height = height.to_i if height
 		end	
 
-		attr_reader :mime_type, :data
+		attr_reader :mime_type
+		attr_reader :width
+		attr_reader :height
+		attr_reader :data
 	end
 
 	module ThumbnailsInputIdentifyMeta
 		attr_accessor :input_mime_type
+
+		# added to thumbnailer v1.1.0 so may be nil for older server
 		attr_accessor :input_width
 		attr_accessor :input_height
 	end
@@ -157,7 +166,7 @@ class HTTPThumbnailerClient
 		when 'text/plain'
 			raise error_for_status(response.status, response.body)
 		when /^image\//
-			Thumbnail.new(content_type, response.body)
+			Thumbnail.new(content_type, response.headers['X-Image-Width'], response.headers['X-Image-Height'], response.body)
 		when /^multipart\/mixed/
 			parts = []
 			parser = MultipartParser::Reader.new(MultipartParser::Reader.extract_boundary_value(content_type))
@@ -181,7 +190,7 @@ class HTTPThumbnailerClient
 							parts << error
 						end
 					when /^image\//
-						parts << Thumbnail.new(part_content_type, data)
+						parts << Thumbnail.new(part_content_type, part.headers['x-image-width'], part.headers['x-image-height'], data)
 					else
 						raise UnknownResponseType, part_content_type
 					end

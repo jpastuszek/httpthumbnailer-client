@@ -24,6 +24,8 @@ describe HTTPThumbnailerClient, 'multipart API' do
 
 		thumbs[0].should be_kind_of HTTPThumbnailerClient::Thumbnail
 		thumbs[0].mime_type.should == 'image/jpeg'
+		thumbs[0].width.should == 60
+		thumbs[0].height.should == 30
 		i = identify(thumbs[0].data)
 		i.format.should == 'JPEG'
 		i.width.should == 60
@@ -31,6 +33,8 @@ describe HTTPThumbnailerClient, 'multipart API' do
 
 		thumbs[1].should be_kind_of HTTPThumbnailerClient::Thumbnail
 		thumbs[1].mime_type.should == 'image/png'
+		thumbs[1].width.should == 80
+		thumbs[1].height.should == 80
 		i = identify(thumbs[1].data)
 		i.format.should == 'PNG'
 		i.width.should == 80
@@ -38,6 +42,8 @@ describe HTTPThumbnailerClient, 'multipart API' do
 
 		thumbs[2].should be_kind_of HTTPThumbnailerClient::Thumbnail
 		thumbs[2].mime_type.should == 'image/png'
+		thumbs[2].width.should == 40
+		thumbs[2].height.should == 40
 		i = identify(thumbs[2].data)
 		i.format.should == 'PNG'
 		i.width.should == 40

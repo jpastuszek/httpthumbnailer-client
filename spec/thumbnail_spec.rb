@@ -20,6 +20,9 @@ describe HTTPThumbnailerClient, 'single thumbnail API' do
 
 		thumbnail.should be_kind_of HTTPThumbnailerClient::Thumbnail
 		thumbnail.mime_type.should == 'image/jpeg'
+		thumbnail.width.should == 6
+		thumbnail.height.should == 3
+
 		i = identify(thumbnail.data)
 		i.format.should == 'JPEG'
 		i.width.should == 6
