@@ -34,8 +34,7 @@ settings = CLI.new do
 		default: 3100
 	options :thumbnail,
 		short: :t,
-		description: 'thumbnail specification in format <operation type>,<width>,<height>,<format>[,<option key>:<option value>]* - see httpthumbnailer documenation for more information',
-		required: true
+		description: 'thumbnail specification in format <operation type>,<width>,<height>,<format>[,<option key>:<option value>]* - see httpthumbnailer documenation for more information'
 	arguments :output_file_name,
 		short: :f,
 		description: 'file name to store resulting thumbnail; when multiple --thumbail options are used the same number of output file names should be specified; use "-" to write to STDOUT',
@@ -48,6 +47,14 @@ end.parse! do |settings|
 end
 
 thumbnailer = HTTPThumbnailerClient.new("http://#{settings.host}:#{settings.port}")
+
+if settings.thumbnail.empty?
+	id = thumbnailer.identify(settings.stdin.read)
+	id.instance_variables.each do |iv|
+		puts "#{iv.to_s.delete '@'}: #{id.instance_variable_get iv}"
+	end
+	exit
+end
 
 thumbnails = if settings.thumbnail.length == 1
 	[thumbnailer.thumbnail(settings.stdin.read, *settings.thumbnail.first)]
