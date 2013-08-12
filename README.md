@@ -23,10 +23,10 @@ data = File.read('image_file.jpg')
 
 # generate single thumbnail from image data (single thumbnail API)
 thumbnail = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail(data, 'crop', 60, 30, 'jpeg')
-thumbnail.mime_type		# => 'image/jpeg'
-thumbnail.width 		# => 60
-thumbnail.height		# => 30
-thumbnail.data 			# => 60x30 thumbnail JPEG data String
+thumbnail.mime_type			# => 'image/jpeg'
+thumbnail.width				# => 60
+thumbnail.height			# => 30
+thumbnail.data				# => 60x30 thumbnail JPEG data String
 
 # generate set of thumbnails from image data (multipart API)
 thumbnails = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail(data) do
