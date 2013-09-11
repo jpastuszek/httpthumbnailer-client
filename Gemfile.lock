@@ -48,7 +48,7 @@ GEM
     raindrops (0.11.0)
     rake (10.0.4)
     rdoc (3.9.4)
-    rmagick (2.13.1)
+    rmagick (2.13.2)
     rspec (2.13.0)
       rspec-core (~> 2.13.0)
       rspec-expectations (~> 2.13.0)
