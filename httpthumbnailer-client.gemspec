@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "httpthumbnailer-client"
-  s.version = "1.0.0"
+  s.version = "1.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jakub Pastuszek"]
-  s.date = "2013-07-16"
+  s.date = "2013-09-11"
   s.description = "Thumbnails images using httpthumbniler server"
   s.email = "jpastuszek@gmail.com"
   s.executables = ["httpthumbnailer-client"]
@@ -32,6 +32,7 @@ Gem::Specification.new do |s|
     "httpthumbnailer-client.gemspec",
     "lib/httpthumbnailer-client.rb",
     "spec/httpthumbnailer-client_spec.rb",
+    "spec/identify_spec.rb",
     "spec/spec_helper.rb",
     "spec/support/test-large.jpg",
     "spec/support/test.jpg",
