@@ -2,7 +2,7 @@ source "http://rubygems.org"
 ruby "1.9.3"
 
 gem "httpclient", ">= 2.3"
-gem "cli", "~> 1.1.0"
+gem "cli", "~> 1.3"
 gem "multipart-parser", "~> 0.1.1"
 
 # Add dependencies to develop your gem here.
