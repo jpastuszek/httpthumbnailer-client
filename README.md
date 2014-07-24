@@ -23,10 +23,10 @@ data = File.read('image_file.jpg')
 
 # generate single thumbnail from image data (single thumbnail API)
 thumbnail = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail(data, 'crop', 60, 30, 'jpeg')
-thumbnail.mime_type			# => 'image/jpeg'
-thumbnail.width				# => 60
-thumbnail.height			# => 30
-thumbnail.data				# => 60x30 thumbnail JPEG data String
+thumbnail.mime_type   # => 'image/jpeg'
+thumbnail.width       # => 60
+thumbnail.height      # => 30
+thumbnail.data        # => 60x30 thumbnail JPEG data String
 
 # generate set of thumbnails from image data (multipart API)
 thumbnails = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail(data) do
@@ -35,30 +35,36 @@ thumbnails = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail(data) 
 	thumbnail 'pad', 40, 40, 'png'
 end
 
-thumbnails[0].mime_type 	# => 'image/jpeg'
-thumbnails[0].width 		# => 60
-thumbnails[0].height		# => 30
-thumbnails[0].data 			# => 60x30 thumbnail JPEG data String
+thumbnails[0].mime_type # => 'image/jpeg'
+thumbnails[0].width     # => 60
+thumbnails[0].height    # => 30
+thumbnails[0].data      # => 60x30 thumbnail JPEG data String
 
-thumbnails[1].mime_type 	# => 'image/png'
-thumbnails[1].width 		# => 80
-thumbnails[1].height		# => 80
-thumbnails[1].data 			# => 80x80 thumbnail PNG data String
+thumbnails[1].mime_type # => 'image/png'
+thumbnails[1].width     # => 80
+thumbnails[1].height    # => 80
+thumbnails[1].data      # => 80x80 thumbnail PNG data String
 
-thumbnails[2].mime_type		# => 'image/png'
-thumbnails[2].width 		# => 40
-thumbnails[2].height		# => 40
-thumbnails[2].data			# => 40x40 thumbnail PNG data String
+thumbnails[2].mime_type # => 'image/png'
+thumbnails[2].width     # => 40
+thumbnails[2].height    # => 40
+thumbnails[2].data      # => 40x40 thumbnail PNG data String
 
-thumbnails.input_mime_type	# => 'image/jpeg' - detected input image format by API server (content based)
-thumbnails.input_width		# => 800 - detected input image width by API server (content based)
-thumbnails.input_height		# => 600 - detected input image height by API server (content based)
+thumbnails.input_mime_type  # => 'image/jpeg' - detected input image format by API server (content based)
+thumbnails.input_width      # => 800 - detected input image width by API server (content based)
+thumbnails.input_height     # => 600 - detected input image height by API server (content based)
 
 # just identify the image
 id = HTTPThumbnailerClient.new('http://localhost:3100').identify(data)
-id.mime_type				# => 'image/jpeg'
-id.width					# => 800
-id.height					# => 600
+id.mime_type  # => 'image/jpeg'
+id.width      # => 800
+id.height     # => 600
+
+# pass transaction ID header to thumbnailer
+id = HTTPThumbnailerClient.new('http://localhost:3100').with_headers('XID' => '123').identify(data)
+id.mime_type  # => 'image/jpeg'
+id.width      # => 800
+id.height     # => 600
 ```
 
 For more details see RSpec for [single thumbnail API](http://github.com/jpastuszek/httpthumbnailer-client/blob/master/spec/thumbnail_spec.rb) and [multipart API](http://github.com/jpastuszek/httpthumbnailer-client/blob/master/spec/thumbnails_spec.rb).
