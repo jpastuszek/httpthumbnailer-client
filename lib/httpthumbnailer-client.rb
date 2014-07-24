@@ -88,8 +88,8 @@ class HTTPThumbnailerClient
 			args << format.to_s
 
 			options.keys.sort{|a, b| a.to_s <=> b.to_s}.each do |key|
-				raise InvalidThumbnailSpecificationError.new("empty option key for value '#{options[key]}'") if key.nil? || key.to_s.empty? 
-				raise InvalidThumbnailSpecificationError.new("missing option value for key '#{key}'") if options[key].nil? || options[key].to_s.empty? 
+				raise InvalidThumbnailSpecificationError.new("empty option key for value '#{options[key]}'") if key.nil? || key.to_s.empty?
+				raise InvalidThumbnailSpecificationError.new("missing option value for key '#{key}'") if options[key].nil? || options[key].to_s.empty?
 				args << "#{key}:#{options[key]}"
 			end
 
@@ -106,7 +106,7 @@ class HTTPThumbnailerClient
 			# added to thumbnailer v1.1.0 so may be nil for older server
 			@width = width.to_i if width
 			@height = height.to_i if height
-		end	
+		end
 
 		attr_reader :mime_type
 		attr_reader :width
@@ -143,6 +143,9 @@ class HTTPThumbnailerClient
 		@client.send_timeout = options[:send_timeout] || 300
 		@client.receive_timeout = options[:receive_timeout] || 300
 
+		# additional HTTP headers to be passed with requests
+		@headers = options[:headers] || {}
+
 		# don't use keep alive by default since backend won't support it any way unless fronted with nginx or similar
 		@keep_alive = options[:keep_alive] || false
 	end
@@ -157,7 +160,7 @@ class HTTPThumbnailerClient
 			URIBuilder.thumbnail(*spec)
 		end
 
-		response = @client.request('PUT', "#{@server_url}#{uri}", nil, data, {'Content-Type' => 'image/autodetect'})
+		response = @client.request('PUT', "#{@server_url}#{uri}", nil, data, {'Content-Type' => 'image/autodetect'}.merge(@headers))
 		@client.reset_all unless @keep_alive
 
 		content_type = response.header['Content-Type'].last
@@ -216,7 +219,7 @@ class HTTPThumbnailerClient
 	end
 
 	def identify(data)
-		response = @client.request('PUT', "#{@server_url}/identify", nil, data, {'Content-Type' => 'image/autodetect'})
+		response = @client.request('PUT', "#{@server_url}/identify", nil, data, {'Content-Type' => 'image/autodetect'}.merge(@headers))
 		@client.reset_all unless @keep_alive
 
 		content_type = response.header['Content-Type'].last
@@ -233,6 +236,14 @@ class HTTPThumbnailerClient
 		return image_id
 	rescue HTTPClient::KeepAliveDisconnected
 		raise RemoteServerError, 'empty response'
+	end
+
+	attr_accessor :headers
+
+	def with_headers(headers)
+		n = self.dup
+		n.headers = @headers.merge headers
+		n
 	end
 
 	def inspect

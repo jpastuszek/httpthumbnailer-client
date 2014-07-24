@@ -4,7 +4,7 @@ describe HTTPThumbnailerClient, 'single thumbnail API' do
 	before :all do
 		log = support_dir + 'server.log'
 		start_server(
-			"httpthumbnailer -f -d -l #{log}",
+			"httpthumbnailer -f -d -x XID -l #{log}",
 			'/tmp/httpthumbnailer.pid',
 			log,
 			'http://localhost:3100/'
@@ -69,6 +69,33 @@ describe HTTPThumbnailerClient, 'single thumbnail API' do
 			lambda {
 				HTTPThumbnailerClient.new('http://localhost:3100').thumbnail((support_dir + 'test-large.jpg').read, 'crop', 7000, 7000, 'png')
 			}.should raise_error HTTPThumbnailerClient::ImageTooLargeError
+		end
+	end
+
+	describe 'passing custom HTTP request headers' do
+		it 'should add headers provided with :headers option' do
+			xid = rand(0..1000)
+
+			thumbnail = HTTPThumbnailerClient.new('http://localhost:3100', headers: {'XID' => xid}).thumbnail((support_dir + 'test.jpg').read, 'crop', 6, 3, 'jpeg')
+			thumbnail.should be_kind_of HTTPThumbnailerClient::Thumbnail
+
+			(support_dir + 'server.log').read.should include "xid=\"#{xid}\""
+		end
+
+		it '#with_headers should add headers to given request' do
+			xid = rand(0..1000)
+
+			thumbnail = HTTPThumbnailerClient.new('http://localhost:3100').with_headers('XID' => xid).thumbnail((support_dir + 'test.jpg').read, 'crop', 6, 3, 'jpeg')
+			thumbnail.should be_kind_of HTTPThumbnailerClient::Thumbnail
+
+			(support_dir + 'server.log').read.should include "xid=\"#{xid}\""
+
+			xid = rand(1000..2000)
+
+			thumbnail = HTTPThumbnailerClient.new('http://localhost:3100').with_headers('XID' => xid).thumbnail((support_dir + 'test.jpg').read, 'crop', 6, 3, 'jpeg')
+			thumbnail.should be_kind_of HTTPThumbnailerClient::Thumbnail
+
+			(support_dir + 'server.log').read.should include "xid=\"#{xid}\""
 		end
 	end
 end
