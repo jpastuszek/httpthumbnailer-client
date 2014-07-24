@@ -4,7 +4,7 @@ describe HTTPThumbnailerClient, 'identify API' do
 	before :all do
 		log = support_dir + 'server.log'
 		start_server(
-			"httpthumbnailer -f -d -l #{log}",
+			"httpthumbnailer -f -d -x XID -l #{log}",
 			'/tmp/httpthumbnailer.pid',
 			log,
 			'http://localhost:3100/'
@@ -27,6 +27,17 @@ describe HTTPThumbnailerClient, 'identify API' do
 			lambda {
 				HTTPThumbnailerClient.new('http://localhost:3100').identify((support_dir + 'test.txt').read)
 			}.should raise_error HTTPThumbnailerClient::UnsupportedMediaTypeError
+		end
+	end
+
+	describe 'passing custom HTTP request headers' do
+		it '#with_headers should add headers to given request' do
+			xid = rand(0..1000)
+
+			input_id = HTTPThumbnailerClient.new('http://localhost:3100').with_headers('XID' => xid).identify((support_dir + 'test.jpg').read)
+			input_id.mime_type.should == 'image/jpeg'
+
+			(support_dir + 'server.log').read.should include "xid=\"#{xid}\""
 		end
 	end
 end
