@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jakub Pastuszek"]
-  s.date = "2014-07-24"
+  s.date = "2014-07-28"
   s.description = "Thumbnails images using httpthumbniler server"
   s.email = "jpastuszek@gmail.com"
   s.executables = ["httpthumbnailer-client"]
