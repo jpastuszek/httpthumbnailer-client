@@ -75,25 +75,41 @@ class HTTPThumbnailerClient
 			self.new('/thumbnails', &block).get
 		end
 
-		def thumbnail(method, width, height, format = 'jpeg', options = {})
+		def thumbnail(method, width, height, format = 'jpeg', options = {}, edits = [])
+			spec = []
 			width = width.to_s
 			height = height.to_s
 
-			args = []
-			args << method.to_s
 			width !~ /^([0-9]+|input)$/ and raise InvalidThumbnailSpecificationError.new("bad dimension value: #{width}")
-			args << width
 			height !~ /^([0-9]+|input)$/ and raise InvalidThumbnailSpecificationError.new("bad dimension value: #{height}")
-			args << height
-			args << format.to_s
 
-			options.keys.sort{|a, b| a.to_s <=> b.to_s}.each do |key|
-				raise InvalidThumbnailSpecificationError.new("empty option key for value '#{options[key]}'") if key.nil? || key.to_s.empty?
-				raise InvalidThumbnailSpecificationError.new("missing option value for key '#{key}'") if options[key].nil? || options[key].to_s.empty?
-				args << "#{key}:#{options[key]}"
+			# sort options for increased caching hit rate
+			options = options.sort_by{|k,v| k}.map do |key, value|
+				raise InvalidThumbnailSpecificationError.new("empty option key for value '#{value}'") if key.nil? || key.to_s.empty?
+				raise InvalidThumbnailSpecificationError.new("missing option value for key '#{key}'") if value.nil? || value.to_s.empty?
+				"#{key}:#{value}"
 			end
 
-			@specs << args.join(',')
+			spec << [method, width, height, format, *options].join(',')
+
+			edits.each do |edit|
+				name, *args = *edit
+				edit_options, args = *args.partition{|e| e.kind_of? Hash}
+
+				# sort options for increased caching hit rate
+				edit_options = edit_options.reduce({}) do |acc, opt|
+					acc.merge! opt
+				end.sort_by{|k,v| k}.map do |key, value|
+					raise InvalidThumbnailSpecificationError.new("empty option key for value '#{value}'") if key.nil? || key.to_s.empty?
+					raise InvalidThumbnailSpecificationError.new("missing option value for key '#{key}'") if value.nil? || value.to_s.empty?
+					"#{key}:#{value}"
+				end
+
+				spec << [name, *args, *edit_options].join(',')
+			end
+
+			@specs << spec.join('!')
+
 			self
 		end
 	end

@@ -37,7 +37,7 @@ describe HTTPThumbnailerClient, 'identify API' do
 			input_id = HTTPThumbnailerClient.new('http://localhost:3100').with_headers('XID' => xid).identify((support_dir + 'test.jpg').read)
 			input_id.mime_type.should == 'image/jpeg'
 
-			(support_dir + 'server.log').read.should include "xid=\"#{xid}\""
+			(support_dir + 'server.log').read.should include "\"xid\":\"#{xid}\""
 		end
 	end
 end

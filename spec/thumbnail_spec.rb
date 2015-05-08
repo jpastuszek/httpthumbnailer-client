@@ -79,7 +79,7 @@ describe HTTPThumbnailerClient, 'single thumbnail API' do
 			thumbnail = HTTPThumbnailerClient.new('http://localhost:3100', headers: {'XID' => xid}).thumbnail((support_dir + 'test.jpg').read, 'crop', 6, 3, 'jpeg')
 			thumbnail.should be_kind_of HTTPThumbnailerClient::Thumbnail
 
-			(support_dir + 'server.log').read.should include "xid=\"#{xid}\""
+			(support_dir + 'server.log').read.should include "\"xid\":\"#{xid}\""
 		end
 
 		it '#with_headers should add headers to given request' do
@@ -88,14 +88,14 @@ describe HTTPThumbnailerClient, 'single thumbnail API' do
 			thumbnail = HTTPThumbnailerClient.new('http://localhost:3100').with_headers('XID' => xid).thumbnail((support_dir + 'test.jpg').read, 'crop', 6, 3, 'jpeg')
 			thumbnail.should be_kind_of HTTPThumbnailerClient::Thumbnail
 
-			(support_dir + 'server.log').read.should include "xid=\"#{xid}\""
+			(support_dir + 'server.log').read.should include "\"xid\":\"#{xid}\""
 
 			xid = rand(1000..2000)
 
 			thumbnail = HTTPThumbnailerClient.new('http://localhost:3100').with_headers('XID' => xid).thumbnail((support_dir + 'test.jpg').read, 'crop', 6, 3, 'jpeg')
 			thumbnail.should be_kind_of HTTPThumbnailerClient::Thumbnail
 
-			(support_dir + 'server.log').read.should include "xid=\"#{xid}\""
+			(support_dir + 'server.log').read.should include "\"xid\":\"#{xid}\""
 		end
 	end
 end

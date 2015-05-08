@@ -132,7 +132,7 @@ describe HTTPThumbnailerClient, 'multipart API' do
 			end
 			thumbs[0].should be_kind_of HTTPThumbnailerClient::Thumbnail
 
-			(support_dir + 'server.log').read.should include "xid=\"#{xid}\""
+			(support_dir + 'server.log').read.should include "\"xid\":\"#{xid}\""
 		end
 	end
 end

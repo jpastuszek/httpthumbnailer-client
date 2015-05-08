@@ -6,17 +6,34 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 require 'httpthumbnailer-client'
 
 def parse_spec(spec)
+	spec, *edits = *spec.split('!')
 	method, width, height, format, *options = *spec.split(',')
 	fail "missing thumbnail specification argument in: #{spec}" unless method and width and height and format
 
 	opts = {}
 	options.each do |option|
-	key, value = option.split(':')
+		key, value = option.split(':')
 		fail "missing option key or value in specifiaction: #{spec}" unless key and value
-	opts[key] = value
+		opts[key] = value
 	end
 
-	[method, width, height, format, opts]
+	edits = edits.map do |edit|
+		name, *args = *edit.split(',')
+		args, *edit_options = *args.slice_before{|a| a =~ /.+:.+/}.to_a
+		edit_options.flatten!
+
+		edit_opts = {}
+		edit_options.each do |option|
+			key, value = option.split(':')
+			fail "missing option key or value in edit specification: #{spec}"  unless key and value
+			edit_opts[key] = value
+		end
+
+		args << edit_opts unless edit_opts.empty?
+		[name, *args]
+	end
+
+	[method, width, height, format, opts, edits]
 end
 
 settings = CLI.new do
@@ -61,13 +78,13 @@ thumbnails = if settings.thumbnail.length == 1
 else
 	thumbnailer.thumbnail(settings.stdin.read) do
 		settings.thumbnail.each do |spec|
-			thumbnail *spec
+			thumbnail(*spec)
 		end
 	end
 end
 
-thumbnails.zip(settings.output_file_name).select do |thumbnail, out_file| 
-	out_file 
+thumbnails.zip(settings.output_file_name).select do |thumbnail, out_file|
+	out_file
 end.each do |thumbnail, out_file|
 	if out_file == '-'
 		STDOUT.write thumbnail.data
