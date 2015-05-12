@@ -86,7 +86,9 @@ end
 thumbnails.zip(settings.output_file_name).select do |thumbnail, out_file|
 	out_file
 end.each do |thumbnail, out_file|
-	if out_file == '-'
+	if thumbnail.kind_of? HTTPThumbnailerClient::HTTPThumbnailerClientError
+		STDERR.puts "Error: thumbnailing for '#{out_file}' failed: #{thumbnail}"
+	elsif out_file == '-'
 		STDOUT.write thumbnail.data
 	else
 		File.open(out_file, 'w') do |file|
