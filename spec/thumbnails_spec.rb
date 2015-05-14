@@ -94,6 +94,19 @@ describe HTTPThumbnailerClient, 'multipart API' do
 			i.height.should == 4
 		end
 
+		describe 'defining edits' do
+			it 'should allow defining edits to be applied on the thumbnails' do
+				thumbnails = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail((support_dir + 'test.jpg').read) do
+					thumbnail 'crop', 6, 3, 'jpeg'
+					thumbnail('fit', 128, 128, 'png') do
+						edit 'rotate', '30', background_color: 'blue'
+					end
+					thumbnail 'crop', 4, 4, 'png'
+				end
+				pixel_color(thumbnails[1].data, 4, 4).should == 'blue'
+			end
+		end
+
 		it 'in case of memory exhaustion while thumbnailing' do
 			thumbs = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail((support_dir + 'test.jpg').read) do
 				thumbnail 'crop', 6, 3, 'jpeg'

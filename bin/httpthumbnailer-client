@@ -74,11 +74,23 @@ if settings.thumbnail.empty?
 end
 
 thumbnails = if settings.thumbnail.length == 1
-	[thumbnailer.thumbnail(settings.stdin.read, *settings.thumbnail.first)]
+	*spec, edits = *settings.thumbnail.first
+	thumbnail = thumbnailer.thumbnail(settings.stdin.read, *spec) do
+		edits.each do |spec|
+			edit(*spec)
+		end
+	end
+
+	[thumbnail]
 else
 	thumbnailer.thumbnail(settings.stdin.read) do
 		settings.thumbnail.each do |spec|
-			thumbnail(*spec)
+			*spec, edits = *spec
+			thumbnail(*spec) do
+				edits.each do |spec|
+					edit(*spec)
+				end
+			end
 		end
 	end
 end

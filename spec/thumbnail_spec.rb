@@ -42,6 +42,22 @@ describe HTTPThumbnailerClient, 'single thumbnail API' do
 		end
 	end
 
+	describe 'passing options' do
+		it 'should allow passing additional options to thumbnailing method' do
+			thumbnail = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail((support_dir + 'test.jpg').read, 'pad', 128, 128, 'png', background_color: 'green')
+			pixel_color(thumbnail.data, 4, 4).should == 'green'
+		end
+	end
+
+	describe 'defining edits' do
+		it 'should allow defining edits to be applied on the thumbnail' do
+			thumbnail = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail((support_dir + 'test.jpg').read, 'fit', 128, 128, 'png') do
+				edit 'rotate', '30', background_color: 'blue'
+			end
+			pixel_color(thumbnail.data, 4, 4).should == 'blue'
+		end
+	end
+
 	describe 'general error handling' do
 		it 'should raise HTTPThumbnailerClient::InvalidThumbnailSpecificationError error on bad request error' do
 			lambda {

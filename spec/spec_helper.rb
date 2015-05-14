@@ -9,7 +9,7 @@ require 'httpthumbnailer-client'
 Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each {|f| require f}
 
 RSpec.configure do |config|
-  
+
 end
 
 require 'daemon'
@@ -30,6 +30,13 @@ end
 def identify(data)
 	image = Magick::Image.from_blob(data).first
 	out = Struct.new(:format, :width, :height).new(image.format, image.columns, image.rows)
+	image.destroy!
+	out
+end
+
+def pixel_color(data, x, y)
+	image = Magick::Image.from_blob(data).first
+	out = image.pixel_color(x.to_i, y.to_i).to_color.sub(/^#/, '0x')
 	image.destroy!
 	out
 end

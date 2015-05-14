@@ -63,54 +63,55 @@ class HTTPThumbnailerClient
 			instance_eval(&block) if block
 		end
 
-		def get
-			"#{@service_uri}/#{@specs.join('/')}"
+		def edit(name, *args)
+			edit_options, args = *args.partition{|e| e.kind_of? Hash}
+
+			edit_options = edit_options.reduce({}) do |acc, opt|
+				acc.merge! opt
+			end
+
+			@specs.empty? and raise ArgumentError, "edit can only be used with thumbnail specification"
+			@specs.last << '!' + [name, *args, *to_options(edit_options)].join(',')
+			self
+		rescue ArgumentError => error
+			raise InvalidThumbnailSpecificationError, error.message + " for edit '#{name}'"
 		end
 
-		def self.thumbnail(*spec)
-			self.new('/thumbnail').thumbnail(*spec).get
+		def to_s
+			"#{@service_uri}/#{@specs.join('/')}"
+		end
+		alias :get :to_s
+
+		def self.thumbnail(*spec, &block)
+			self.new('/thumbnail').thumbnail(*spec, &block).to_s
 		end
 
 		def self.thumbnails(&block)
-			self.new('/thumbnails', &block).get
+			self.new('/thumbnails', &block).to_s
 		end
 
-		def thumbnail(method, width, height, format = 'jpeg', options = {}, edits = [])
-			spec = []
+		def thumbnail(method, width, height, format = 'jpeg', options = {}, &block)
 			width = width.to_s
 			height = height.to_s
 
-			width !~ /^([0-9]+|input)$/ and raise InvalidThumbnailSpecificationError.new("bad dimension value: #{width}")
-			height !~ /^([0-9]+|input)$/ and raise InvalidThumbnailSpecificationError.new("bad dimension value: #{height}")
+			width !~ /^([0-9]+|input)$/ and raise ArgumentError, "bad dimension value: #{width}"
+			height !~ /^([0-9]+|input)$/ and raise ArgumentError, "bad dimension value: #{height}"
 
-			# sort options for increased caching hit rate
-			options = options.sort_by{|k,v| k}.map do |key, value|
-				raise InvalidThumbnailSpecificationError.new("empty option key for value '#{value}'") if key.nil? || key.to_s.empty?
-				raise InvalidThumbnailSpecificationError.new("missing option value for key '#{key}'") if value.nil? || value.to_s.empty?
-				"#{key}:#{value}"
-			end
-
-			spec << [method, width, height, format, *options].join(',')
-
-			edits.each do |edit|
-				name, *args = *edit
-				edit_options, args = *args.partition{|e| e.kind_of? Hash}
-
-				# sort options for increased caching hit rate
-				edit_options = edit_options.reduce({}) do |acc, opt|
-					acc.merge! opt
-				end.sort_by{|k,v| k}.map do |key, value|
-					raise InvalidThumbnailSpecificationError.new("empty option key for value '#{value}' for edit '#{name}'") if key.nil? || key.to_s.empty?
-					raise InvalidThumbnailSpecificationError.new("missing option value for key '#{key}' for edit '#{name}'") if value.nil? || value.to_s.empty?
-					"#{key}:#{value}"
-				end
-
-				spec << [name, *args, *edit_options].join(',')
-			end
-
-			@specs << spec.join('!')
-
+			@specs << [method, width, height, format, *to_options(options)].join(',')
+			instance_eval(&block) if block
 			self
+		rescue ArgumentError => error
+			raise InvalidThumbnailSpecificationError, error.message
+		end
+
+		private
+
+		def to_options(options)
+			options.sort_by{|k,v| k}.map do |key, value|
+				raise ArgumentError, "empty option key for value '#{value}'" if key.nil? or key.to_s.empty?
+				raise ArgumentError, "missing option value for key '#{key}'" if value.nil? or value.to_s.empty?
+				"#{key.to_s.gsub('_', '-')}:#{value}"
+			end
 		end
 	end
 
@@ -170,10 +171,10 @@ class HTTPThumbnailerClient
 	attr_reader :keep_alive
 
 	def thumbnail(data, *spec, &block)
-		uri = if block
+		uri = if spec.empty?
 			URIBuilder.thumbnails(&block)
 		else
-			URIBuilder.thumbnail(*spec)
+			URIBuilder.thumbnail(*spec, &block)
 		end
 
 		response = @client.request('PUT', "#{@server_url}#{uri}", nil, data, {'Content-Type' => 'image/autodetect'}.merge(@headers))
