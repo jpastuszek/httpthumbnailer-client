@@ -60,7 +60,7 @@ class HTTPThumbnailerClient
 		def initialize(service_uri, &block)
 			@specs = []
 			@service_uri = service_uri
-			instance_eval &block if block
+			instance_eval(&block) if block
 		end
 
 		def get
@@ -100,8 +100,8 @@ class HTTPThumbnailerClient
 				edit_options = edit_options.reduce({}) do |acc, opt|
 					acc.merge! opt
 				end.sort_by{|k,v| k}.map do |key, value|
-					raise InvalidThumbnailSpecificationError.new("empty option key for value '#{value}'") if key.nil? || key.to_s.empty?
-					raise InvalidThumbnailSpecificationError.new("missing option value for key '#{key}'") if value.nil? || value.to_s.empty?
+					raise InvalidThumbnailSpecificationError.new("empty option key for value '#{value}' for edit '#{name}'") if key.nil? || key.to_s.empty?
+					raise InvalidThumbnailSpecificationError.new("missing option value for key '#{key}' for edit '#{name}'") if value.nil? || value.to_s.empty?
 					"#{key}:#{value}"
 				end
 

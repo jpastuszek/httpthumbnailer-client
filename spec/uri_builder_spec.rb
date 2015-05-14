@@ -20,5 +20,13 @@ describe HTTPThumbnailerClient::URIBuilder do
 			thumbnail 'fit', 16, 16, 'jpeg', {}, [['test', '1', '2', {'b' => 2, 'a' => 1}]]
 		end.should == '/thumbnails/crop,16,16,jpeg!test,1,2!test2,a:1,b:2/pad,32,64,png,magick:xdfa,number:2/fit,16,16,jpeg!test,1,2,a:1,b:2'
 	end
+
+	describe 'error handling' do
+		it 'should raise InvalidThumbnailSpecificationError on bad thumbaniling options' do
+			expect {
+				HTTPThumbnailerClient::URIBuilder.thumbnail('pad', 32, 64, 'png', {magick: nil, number: 2})
+			}.to raise_error HTTPThumbnailerClient::InvalidThumbnailSpecificationError, "missing option value for key 'magick'"
+		end
+	end
 end
 
