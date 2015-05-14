@@ -110,7 +110,8 @@ class HTTPThumbnailerClient
 			options.sort_by{|k,v| k}.map do |key, value|
 				raise ArgumentError, "empty option key for value '#{value}'" if key.nil? or key.to_s.empty?
 				raise ArgumentError, "missing option value for key '#{key}'" if value.nil? or value.to_s.empty?
-				"#{key.to_s.gsub('_', '-')}:#{value}"
+				key = key.to_s.gsub('_', '-') if key.kind_of? Symbol
+				"#{key}:#{value}"
 			end
 		end
 	end
