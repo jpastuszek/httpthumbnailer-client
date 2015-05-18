@@ -2,6 +2,7 @@ require 'httpclient'
 require 'ostruct'
 require 'json'
 require 'multipart_parser/reader'
+require 'httpthumbnailer-client/uri_parser'
 
 class HTTPThumbnailerClient
 	HTTPThumbnailerClientError = Class.new(ArgumentError)
