@@ -1,37 +1,37 @@
 class HTTPThumbnailerClient
 	#TODO: support for escaping of ! and ,
 	class ThumbnailingSpec
-		class MissingArgumentError < ArgumentError
-			def initialize(argument)
-				super "missing #{argument} argument"
-			end
-		end
-
-		class InvalidArgumentValueError < ArgumentError
-			def initialize(name, value, reason)
-				super "#{name} value '#{value}' is not #{reason}"
-			end
-		end
-
-		class InvalidOptionsFormatError < ArgumentError
+		class InvalidFormatError < ArgumentError
 			def for_edit(name)
 				exception "#{message} for edit '#{name}'"
 			end
 		end
 
-		class MissingOptionKeyValuePairError < InvalidOptionsFormatError
+		class MissingArgumentError < InvalidFormatError
+			def initialize(argument)
+				super "missing #{argument} argument"
+			end
+		end
+
+		class InvalidArgumentValueError < InvalidFormatError
+			def initialize(name, value, reason)
+				super "#{name} value '#{value}' is not #{reason}"
+			end
+		end
+
+		class MissingOptionKeyValuePairError < InvalidFormatError
 			def initialize(index)
 				super "missing key-value pair on position #{index + 1}"
 			end
 		end
 
-		class MissingOptionKeyNameError < InvalidOptionsFormatError
+		class MissingOptionKeyNameError < InvalidFormatError
 			def initialize(value)
 				super "missing option key name for value '#{value}'"
 			end
 		end
 
-		class MissingOptionKeyValueError < InvalidOptionsFormatError
+		class MissingOptionKeyValueError < InvalidFormatError
 			def initialize(key)
 				super "missing option key value for key '#{key}'"
 			end
@@ -53,7 +53,7 @@ class HTTPThumbnailerClient
 
 				begin
 					options = options.empty? ? {} : HTTPThumbnailerClient::ThumbnailingSpec.parse_options(options.join(','))
-				rescue InvalidOptionsFormatError => error
+				rescue InvalidFormatError => error
 					raise error.for_edit(name)
 				end
 				new(name, args, options)
