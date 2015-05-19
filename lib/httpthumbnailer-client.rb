@@ -58,6 +58,8 @@ class HTTPThumbnailerClient
 	InvalidMultipartResponseError = Class.new HTTPThumbnailerClientError
 
 	class URIBuilder
+		attr_reader :specs
+
 		def initialize(service_uri, &block)
 			@specs = []
 			@service_uri = service_uri
@@ -82,14 +84,24 @@ class HTTPThumbnailerClient
 		rescue ThumbnailingSpec::InvalidFormatError => error
 			raise InvalidThumbnailSpecificationError, error.message
 		end
+
 		alias :get :to_s
 
-		def self.thumbnail(*spec, &block)
-			self.new('/thumbnail').thumbnail(*spec, &block).to_s
+		def self.thumbnail(method, width, height, format = 'jpeg', options = {}, &block)
+			self.new('/thumbnail').thumbnail(method, width, height, format, options, &block).to_s
 		end
 
 		def self.thumbnails(&block)
 			self.new('/thumbnails', &block).to_s
+		end
+
+		def self.for_specs(*specs)
+			uri = specs.length > 1 ? '/thumbnails' : '/thumbnail'
+			b = new(uri)
+			specs.each do |spec|
+				b.specs << spec
+			end
+			b.to_s
 		end
 
 		def thumbnail(method, width, height, format = 'jpeg', options = {}, &block)
