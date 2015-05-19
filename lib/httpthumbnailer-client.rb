@@ -113,11 +113,13 @@ class HTTPThumbnailerClient
 	attr_reader :keep_alive
 
 	def thumbnail(data, *spec, &block)
+		return_array = true
 		uri = if spec.empty?
 			URIBuilder.thumbnails(&block)
 		elsif spec.all?{|s| s.kind_of? ThumbnailingSpec}
 			URIBuilder.specs(*spec)
 		else
+			return_array = false # for .thumbnail(data, 'crop', 60, 30, 'jpeg') kind of usage
 			URIBuilder.thumbnail(*spec, &block)
 		end
 
@@ -130,7 +132,8 @@ class HTTPThumbnailerClient
 		when 'text/plain'
 			raise error_for_status(response.status, response.body)
 		when /^image\//
-			Thumbnail.new(content_type, response.headers['X-Image-Width'], response.headers['X-Image-Height'], response.body)
+			thumb = Thumbnail.new(content_type, response.headers['X-Image-Width'], response.headers['X-Image-Height'], response.body)
+			return_array ? [thumb] : thumb
 		when /^multipart\/mixed/
 			parts = []
 			parser = MultipartParser::Reader.new(MultipartParser::Reader.extract_boundary_value(content_type))

@@ -45,7 +45,6 @@ if settings.thumbnail.empty?
 end
 
 thumbnails = thumbnailer.thumbnail(settings.stdin.read, *settings.thumbnail)
-thumbnails = [thumbnails] if settings.thumbnail.length == 1
 
 thumbnails.zip(settings.output_file_name).select do |thumbnail, out_file|
 	out_file
