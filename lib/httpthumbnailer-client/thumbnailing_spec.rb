@@ -40,9 +40,6 @@ class HTTPThumbnailerClient
 		class EditSpec
 			attr_reader :name, :args, :options
 
-			def self.build
-			end
-
 			def self.from_string(string)
 				args = HTTPThumbnailerClient::ThumbnailingSpec.split_args(string)
 				args, options = HTTPThumbnailerClient::ThumbnailingSpec.partition_args_options(args)
@@ -57,16 +54,20 @@ class HTTPThumbnailerClient
 				new(name, args, options)
 			end
 
-			def initialize(name, args, options)
+			def initialize(name, args, options = {})
 				@name = name
 				@args = args
 				@options = options
+			end
+
+			def to_s
+				[@name, *@args, *@options.map{|kv| kv.join(':')}].join(',')
 			end
 		end
 
 		attr_reader :method, :width, :height, :format, :options, :edits
 
-		def self.build
+		def self.build(&block)
 		end
 
 		def self.from_string(string)
@@ -99,7 +100,8 @@ class HTTPThumbnailerClient
 			@edits = edits
 		end
 
-		def to_thumbnailer_uri
+		def to_s
+			[[@method, @width, @height, @format, *@options.map{|kv| kv.join(':')}].join(','), *@edits.map(&:to_s)].join('!')
 		end
 
 		def self.split_edits(string)

@@ -62,6 +62,16 @@ describe HTTPThumbnailerClient::ThumbnailingSpec do
 				end
 			end
 		end
+
+		describe '#to_s' do
+			subject do
+				HTTPThumbnailerClient::ThumbnailingSpec::EditSpec.new('rotate', '30', 'background-color' => 'red', 'blah' => 'xyz')
+			end
+
+			it 'should construct string from spec' do
+				subject.to_s.should == 'rotate,30,background-color:red,blah:xyz'
+			end
+		end
 	end
 
 	describe '#parse_options' do
@@ -160,6 +170,20 @@ describe HTTPThumbnailerClient::ThumbnailingSpec do
 					}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingArgumentError, 'missing format argument'
 				end
 			end
+		end
+	end
+
+	describe '#to_s' do
+		subject do
+			edits = []
+			edits << HTTPThumbnailerClient::ThumbnailingSpec::EditSpec.new('rotate', ['30'], 'background-color' => 'red', 'blah' => 'xyz')
+			edits << HTTPThumbnailerClient::ThumbnailingSpec::EditSpec.new('crop', ['1', '2', '3', '4'])
+
+			HTTPThumbnailerClient::ThumbnailingSpec.new('crop', '100', '200', 'PNG', {'abc' => 'xyz', 'a' => 'b'}, edits)
+		end
+
+		it 'should construct string from spec' do
+			subject.to_s.should == 'crop,100,200,PNG,abc:xyz,a:b!rotate,30,background-color:red,blah:xyz!crop,1,2,3,4'
 		end
 	end
 end
