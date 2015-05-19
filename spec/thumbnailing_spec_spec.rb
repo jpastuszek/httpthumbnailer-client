@@ -1,4 +1,5 @@
 require_relative 'spec_helper'
+require 'httpthumbnailer-client/thumbnailing_spec'
 
 describe HTTPThumbnailerClient::ThumbnailingSpec do
 	subject do

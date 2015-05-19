@@ -1,4 +1,5 @@
 require_relative 'spec_helper'
+require 'httpthumbnailer-client/uri_builder'
 
 describe HTTPThumbnailerClient::URIBuilder do
 	describe 'building single thumbnail URL' do
