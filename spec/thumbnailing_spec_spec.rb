@@ -57,7 +57,7 @@ describe HTTPThumbnailerClient::ThumbnailingSpec do
 						}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyNameError, "missing option key name for value 'world' for edit 'crop'"
 						expect {
 							subject.from_string('rotate,30,blah:')
-						}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyValueError, "missing option key value for key 'blah' for edit 'rotate'"
+						}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyValueError, "missing option value for key 'blah' for edit 'rotate'"
 					end
 				end
 			end
@@ -70,6 +70,14 @@ describe HTTPThumbnailerClient::ThumbnailingSpec do
 
 			it 'should construct string from spec' do
 				subject.to_s.should == 'rotate,30,background-color:red,blah:xyz'
+			end
+
+			context 'with nil options values' do
+				it 'should raise MissingOptionKeyValueError for edit' do
+					expect {
+						HTTPThumbnailerClient::ThumbnailingSpec::EditSpec.new('rotate', '30', 'background-color' => 'red', 'blah' => nil).to_s
+					}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyValueError, "missing option value for key 'blah' for edit 'rotate'"
+				end
 			end
 		end
 	end
@@ -100,22 +108,22 @@ describe HTTPThumbnailerClient::ThumbnailingSpec do
 				}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyValuePairError, "missing key-value pair on position 2"
 			end
 
-			it 'should raise MissingOptionKeyValueError on empty key value' do
+			it 'should raise MissingOptionKeyValueError on empty value' do
 				expect {
 					subject.parse_options(['hello:', 'this:is:a:test', 'abc:123'])
-				}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyValueError, "missing option key value for key 'hello'"
+				}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyValueError, "missing option value for key 'hello'"
 				expect {
 					subject.parse_options(['hello:world', 'this:', 'abc:123'])
-				}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyValueError, "missing option key value for key 'this'"
+				}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyValueError, "missing option value for key 'this'"
 			end
 
 			it 'should raise MissingOptionKeyValueError on missing key-value separator' do
 				expect {
 					subject.parse_options(['hello', 'this:is:a:test', 'abc:123'])
-				}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyValueError, "missing option key value for key 'hello'"
+				}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyValueError, "missing option value for key 'hello'"
 				expect {
 					subject.parse_options(['hello:world', 'this', 'abc:123'])
-				}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyValueError, "missing option key value for key 'this'"
+				}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyValueError, "missing option value for key 'this'"
 			end
 		end
 	end
@@ -173,6 +181,32 @@ describe HTTPThumbnailerClient::ThumbnailingSpec do
 		end
 	end
 
+	describe '#options_to_s' do
+		it 'should format option string from hash with sorting of key' do
+			HTTPThumbnailerClient::ThumbnailingSpec.options_to_s('xyz' => 'abc', 'abc' => '123', '123' => 'aaa').should == ['123:aaa', 'abc:123', 'xyz:abc']
+		end
+
+		it 'should convert symbol keys to strings' do
+			HTTPThumbnailerClient::ThumbnailingSpec.options_to_s(background_color: 'red').should == ['background-color:red']
+		end
+
+		context 'with nil keys' do
+			it 'should raise MissingOptionKeyNameError' do
+				expect {
+					HTTPThumbnailerClient::ThumbnailingSpec.options_to_s(nil => 'red')
+				}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyNameError, "missing option key name for value 'red'"
+			end
+		end
+
+		context 'with nil values' do
+			it 'should raise MissingOptionKeyValueError' do
+				expect {
+					HTTPThumbnailerClient::ThumbnailingSpec.options_to_s('blah' => nil)
+				}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyValueError, "missing option value for key 'blah'"
+			end
+		end
+	end
+
 	describe '#to_s' do
 		subject do
 			edits = []
@@ -183,7 +217,7 @@ describe HTTPThumbnailerClient::ThumbnailingSpec do
 		end
 
 		it 'should construct string from spec' do
-			subject.to_s.should == 'crop,100,200,PNG,abc:xyz,a:b!rotate,30,background-color:red,blah:xyz!crop,1,2,3,4'
+			subject.to_s.should == 'crop,100,200,PNG,a:b,abc:xyz!rotate,30,background-color:red,blah:xyz!crop,1,2,3,4'
 		end
 	end
 end

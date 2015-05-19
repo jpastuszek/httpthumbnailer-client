@@ -33,7 +33,7 @@ class HTTPThumbnailerClient
 
 		class MissingOptionKeyValueError < InvalidFormatError
 			def initialize(key)
-				super "missing option key value for key '#{key}'"
+				super "missing option value for key '#{key}'"
 			end
 		end
 
@@ -44,7 +44,6 @@ class HTTPThumbnailerClient
 				args = HTTPThumbnailerClient::ThumbnailingSpec.split_args(string)
 				args, options = HTTPThumbnailerClient::ThumbnailingSpec.partition_args_options(args)
 				name = args.shift
-				name.nil? or name.empty? and raise MissingArgumentError, 'edit name'
 
 				begin
 					options = HTTPThumbnailerClient::ThumbnailingSpec.parse_options(options)
@@ -55,20 +54,23 @@ class HTTPThumbnailerClient
 			end
 
 			def initialize(name, args, options = {})
+				name.nil? or name.empty? and raise MissingArgumentError, 'edit name'
+
 				@name = name
 				@args = args
 				@options = options
 			end
 
 			def to_s
-				[@name, *@args, *@options.map{|kv| kv.join(':')}].join(',')
+				begin
+					[@name, *@args, *HTTPThumbnailerClient::ThumbnailingSpec.options_to_s(@options)].join(',')
+				rescue InvalidFormatError => error
+					raise error.for_edit(name)
+				end
 			end
 		end
 
 		attr_reader :method, :width, :height, :format, :options, :edits
-
-		def self.build(&block)
-		end
 
 		def self.from_string(string)
 			edits = split_edits(string)
@@ -77,6 +79,13 @@ class HTTPThumbnailerClient
 			args, options = partition_args_options(args)
 			method, width, height, format = *args.shift(4) # ignore extra args
 
+			options = parse_options(options)
+			edits = edits.map{|e| EditSpec.from_string(e)}
+
+			new(method, width, height, format, options, edits)
+		end
+
+		def initialize(method, width, height, format, options = {}, edits = [])
 			method.nil? or method.empty? and raise MissingArgumentError, 'method'
 			width.nil? or width.empty? and raise MissingArgumentError, 'width'
 			height.nil? or height.empty? and raise MissingArgumentError, 'height'
@@ -84,14 +93,6 @@ class HTTPThumbnailerClient
 
 			width !~ /^([0-9]+|input)$/ and raise InvalidArgumentValueError.new('width', width, "an integer or 'input'")
 			height !~ /^([0-9]+|input)$/ and raise InvalidArgumentValueError.new('height', height, "an integer or 'input'")
-
-			options = parse_options(options)
-			edits = edits.map{|e| EditSpec.from_string(e)}
-
-			new(method, width, height, format, options, edits)
-		end
-
-		def initialize(method, width, height, format, options, edits)
 			@method = method
 			@width = width
 			@height = height
@@ -101,7 +102,7 @@ class HTTPThumbnailerClient
 		end
 
 		def to_s
-			[[@method, @width, @height, @format, *@options.map{|kv| kv.join(':')}].join(','), *@edits.map(&:to_s)].join('!')
+			[[@method, @width, @height, @format, *self.class.options_to_s(@options)].join(','), *@edits.map(&:to_s)].join('!')
 		end
 
 		def self.split_edits(string)
@@ -127,6 +128,15 @@ class HTTPThumbnailerClient
 					key.nil? or key.empty? and raise MissingOptionKeyNameError, value
 					value.nil? or value.empty? and raise MissingOptionKeyValueError, key
 				end
+			end
+		end
+
+		def self.options_to_s(options)
+			options.sort_by{|k,v| k}.map do |key, value|
+				raise MissingOptionKeyNameError, value if key.nil? or key.to_s.empty?
+				raise MissingOptionKeyValueError, key if value.nil? or value.to_s.empty?
+				key = key.to_s.gsub('_', '-') if key.kind_of? Symbol
+				"#{key}:#{value}"
 			end
 		end
 	end

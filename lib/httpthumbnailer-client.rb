@@ -66,20 +66,21 @@ class HTTPThumbnailerClient
 
 		def edit(name, *args)
 			edit_options, args = *args.partition{|e| e.kind_of? Hash}
-
 			edit_options = edit_options.reduce({}) do |acc, opt|
 				acc.merge! opt
 			end
 
 			@specs.empty? and raise ArgumentError, "edit can only be used with thumbnail specification"
-			@specs.last << '!' + [name, *args, *to_options(edit_options)].join(',')
+			@specs.last.edits << ThumbnailingSpec::EditSpec.new(name, args, edit_options)
 			self
-		rescue ArgumentError => error
-			raise InvalidThumbnailSpecificationError, error.message + " for edit '#{name}'"
+		rescue ThumbnailingSpec::InvalidFormatError => error
+			raise InvalidThumbnailSpecificationError, error.message
 		end
 
 		def to_s
-			"#{@service_uri}/#{@specs.join('/')}"
+			"#{@service_uri}/#{@specs.map(&:to_s).join('/')}"
+		rescue ThumbnailingSpec::InvalidFormatError => error
+			raise InvalidThumbnailSpecificationError, error.message
 		end
 		alias :get :to_s
 
@@ -92,28 +93,11 @@ class HTTPThumbnailerClient
 		end
 
 		def thumbnail(method, width, height, format = 'jpeg', options = {}, &block)
-			width = width.to_s
-			height = height.to_s
-
-			width !~ /^([0-9]+|input)$/ and raise ArgumentError, "bad dimension value: #{width}"
-			height !~ /^([0-9]+|input)$/ and raise ArgumentError, "bad dimension value: #{height}"
-
-			@specs << [method, width, height, format, *to_options(options)].join(',')
+			@specs << ThumbnailingSpec.new(method, width.to_s, height.to_s, format, options)
 			instance_eval(&block) if block
 			self
-		rescue ArgumentError => error
+		rescue ThumbnailingSpec::InvalidFormatError => error
 			raise InvalidThumbnailSpecificationError, error.message
-		end
-
-		private
-
-		def to_options(options)
-			options.sort_by{|k,v| k}.map do |key, value|
-				raise ArgumentError, "empty option key for value '#{value}'" if key.nil? or key.to_s.empty?
-				raise ArgumentError, "missing option value for key '#{key}'" if value.nil? or value.to_s.empty?
-				key = key.to_s.gsub('_', '-') if key.kind_of? Symbol
-				"#{key}:#{value}"
-			end
 		end
 	end
 
