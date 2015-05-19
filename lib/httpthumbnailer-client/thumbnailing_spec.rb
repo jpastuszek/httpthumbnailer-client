@@ -9,8 +9,8 @@ class HTTPThumbnailerClient
 
 			def edit(name, *args)
 				edit_options, args = *args.partition{|e| e.kind_of? Hash}
-				edit_options = edit_options.reduce({}) do |acc, opt|
-					acc.merge! opt
+				edit_options = edit_options.each.with_object({}) do |opt, hash|
+					hash.merge! opt
 				end
 
 				edit_spec ThumbnailingSpec::EditSpec.new(name, args, edit_options)
