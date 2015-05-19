@@ -115,6 +115,8 @@ class HTTPThumbnailerClient
 	def thumbnail(data, *spec, &block)
 		uri = if spec.empty?
 			URIBuilder.thumbnails(&block)
+		elsif spec.all?{|s| s.kind_of? ThumbnailingSpec}
+			URIBuilder.specs(*spec)
 		else
 			URIBuilder.thumbnail(*spec, &block)
 		end

@@ -5,37 +5,6 @@ require 'pathname'
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 require 'httpthumbnailer-client'
 
-def parse_spec(spec)
-	spec, *edits = *spec.split('!')
-	method, width, height, format, *options = *spec.split(',')
-	fail "missing thumbnail specification argument in: #{spec}" unless method and width and height and format
-
-	opts = {}
-	options.each do |option|
-		key, value = option.split(':')
-		fail "missing option key or value in specifiaction: #{spec}" unless key and value
-		opts[key] = value
-	end
-
-	edits = edits.map do |edit|
-		name, *args = *edit.split(',')
-		args, *edit_options = *args.slice_before{|a| a =~ /.+:.+/}.to_a
-		edit_options.flatten!
-
-		edit_opts = {}
-		edit_options.each do |option|
-			key, value = option.split(':')
-			fail "missing option key or value in edit specification: #{spec}"  unless key and value
-			edit_opts[key] = value
-		end
-
-		args << edit_opts unless edit_opts.empty?
-		[name, *args]
-	end
-
-	[method, width, height, format, opts, edits]
-end
-
 settings = CLI.new do
 	description 'Client to httpthumbnailer image scaling and conversion HTTP API server'
 	stdin :image_data,
@@ -60,7 +29,9 @@ settings = CLI.new do
 end.parse! do |settings|
 	STDERR.puts "Warning: there is more thumbnail specifications given than output file names; some thumbnails will not be saved" if settings.thumbnail.length > settings.output_file_name.length
 	fail 'only one thumbnail can be written to STDOUT' if settings.output_file_name.count('-') > 1
-	settings.thumbnail = settings.thumbnail.map{|spec| parse_spec(spec)}
+	settings.thumbnail.map! do |spec|
+		HTTPThumbnailerClient::ThumbnailingSpec.from_string(spec)
+	end
 end
 
 thumbnailer = HTTPThumbnailerClient.new("http://#{settings.host}:#{settings.port}")
@@ -73,27 +44,8 @@ if settings.thumbnail.empty?
 	exit
 end
 
-thumbnails = if settings.thumbnail.length == 1
-	*spec, edits = *settings.thumbnail.first
-	thumbnail = thumbnailer.thumbnail(settings.stdin.read, *spec) do
-		edits.each do |spec|
-			edit(*spec)
-		end
-	end
-
-	[thumbnail]
-else
-	thumbnailer.thumbnail(settings.stdin.read) do
-		settings.thumbnail.each do |spec|
-			*spec, edits = *spec
-			thumbnail(*spec) do
-				edits.each do |spec|
-					edit(*spec)
-				end
-			end
-		end
-	end
-end
+thumbnails = thumbnailer.thumbnail(settings.stdin.read, *settings.thumbnail)
+thumbnails = [thumbnails] if settings.thumbnail.length == 1
 
 thumbnails.zip(settings.output_file_name).select do |thumbnail, out_file|
 	out_file
