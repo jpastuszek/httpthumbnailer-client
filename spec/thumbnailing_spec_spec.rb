@@ -5,6 +5,55 @@ describe HTTPThumbnailerClient::ThumbnailingSpec do
 		HTTPThumbnailerClient::ThumbnailingSpec
 	end
 
+	describe HTTPThumbnailerClient::ThumbnailingSpec::Builder do
+		subject do
+			HTTPThumbnailerClient::ThumbnailingSpec::Builder
+		end
+
+		it 'should allow building basic specification' do
+			builder = subject.new('crop', 16, 16, 'jpeg')
+			builder.spec.should be_a HTTPThumbnailerClient::ThumbnailingSpec
+			builder.spec.to_s.should == 'crop,16,16,jpeg'
+		end
+
+		describe 'adding edits' do
+			context 'with block' do
+				it 'should allow building specification with edits' do
+					builder = subject.new('crop', 16, 16, 'jpeg') do
+						edit('test', '1', '2')
+						edit('test2', {'b' => 2, 'a' => 1})
+					end
+
+					builder.spec.should be_a HTTPThumbnailerClient::ThumbnailingSpec
+					builder.spec.to_s.should == 'crop,16,16,jpeg!test,1,2!test2,a:1,b:2'
+				end
+			end
+			context 'with #edit' do
+				it 'should allow building specification with edits' do
+					builder = subject.new('crop', 16, 16, 'jpeg') do
+						edit('test', '1', '2')
+						edit('test2', {'b' => 2, 'a' => 1})
+					end
+					builder.edit('test3')
+
+					builder.spec.should be_a HTTPThumbnailerClient::ThumbnailingSpec
+					builder.spec.to_s.should == 'crop,16,16,jpeg!test,1,2!test2,a:1,b:2!test3'
+				end
+			end
+			context 'with #edit_spec' do
+				it 'should allow building specification with edits' do
+					builder = subject.new('crop', 16, 16, 'jpeg') do
+						edit_spec  HTTPThumbnailerClient::ThumbnailingSpec::EditSpec.new('rotate', ['30'], 'background-color' => 'red', 'blah' => 'xyz')
+					end
+					builder.edit_spec HTTPThumbnailerClient::ThumbnailingSpec::EditSpec.new('crop', ['1', '2', '3', '4'])
+
+					builder.spec.should be_a HTTPThumbnailerClient::ThumbnailingSpec
+					builder.spec.to_s.should == 'crop,16,16,jpeg!rotate,30,background-color:red,blah:xyz!crop,1,2,3,4'
+				end
+			end
+		end
+	end
+
 	describe HTTPThumbnailerClient::ThumbnailingSpec::EditSpec do
 		subject do
 			HTTPThumbnailerClient::ThumbnailingSpec::EditSpec

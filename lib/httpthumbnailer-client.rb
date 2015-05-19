@@ -58,34 +58,6 @@ class HTTPThumbnailerClient
 	InvalidMultipartResponseError = Class.new HTTPThumbnailerClientError
 
 	class URIBuilder
-		class ThumbnailingSpecBuilder
-			def initialize(method, width, height, format = 'jpeg', options = {}, &block)
-				@spec = ThumbnailingSpec.new(method, width.to_s, height.to_s, format, options)
-				instance_eval(&block) if block
-			end
-
-			def edit(name, *args)
-				edit_options, args = *args.partition{|e| e.kind_of? Hash}
-				edit_options = edit_options.reduce({}) do |acc, opt|
-					acc.merge! opt
-				end
-
-				edit_spec ThumbnailingSpec::EditSpec.new(name, args, edit_options)
-				self
-			rescue ThumbnailingSpec::InvalidFormatError => error
-				raise InvalidThumbnailSpecificationError, error.message
-			end
-
-			def edit_spec(spec)
-				@spec.edits << spec
-				self
-			end
-
-			def get
-				@spec
-			end
-		end
-
 		def initialize(&block)
 			@specs = []
 			instance_eval(&block) if block
@@ -106,21 +78,19 @@ class HTTPThumbnailerClient
 		end
 
 		def thumbnail(method, width, height, format = 'jpeg', options = {}, &block)
-			thumbnail_spec ThumbnailingSpecBuilder.new(method, width.to_s, height.to_s, format, options, &block).get
+			thumbnail_spec ThumbnailingSpec::Builder.new(method, width.to_s, height.to_s, format, options, &block).spec
 			self
-		rescue ThumbnailingSpec::InvalidFormatError => error
-			raise InvalidThumbnailSpecificationError, error.message
 		end
 
 		def thumbnail_spec(spec)
 			@specs << spec
 		end
 
+		attr_reader :specs
+
 		def to_s
 			uri = @specs.length > 1 ? '/thumbnails' : '/thumbnail'
 			"#{uri}/#{@specs.map(&:to_s).join('/')}"
-		rescue ThumbnailingSpec::InvalidFormatError => error
-			raise InvalidThumbnailSpecificationError, error.message
 		end
 
 		alias :get :to_s

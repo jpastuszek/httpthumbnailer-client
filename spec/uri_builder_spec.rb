@@ -111,18 +111,18 @@ describe HTTPThumbnailerClient::URIBuilder do
 	end
 
 	describe 'error handling' do
-		it 'should raise InvalidThumbnailSpecificationError on bad thumbaniling options' do
+		it 'should raise ThumbnailingSpec::MissingOptionKeyValueError on bad thumbaniling options' do
 			expect {
 				HTTPThumbnailerClient::URIBuilder.thumbnail('pad', 32, 64, 'png', {magick: nil, number: 2})
-			}.to raise_error HTTPThumbnailerClient::InvalidThumbnailSpecificationError, "missing option value for key 'magick'"
+			}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyValueError, "missing option value for key 'magick'"
 		end
 
-		it 'should raise InvalidThumbnailSpecificationError on bad edit options' do
+		it 'should raise ThumbnailingSpec::MissingOptionKeyValueError on bad edit options' do
 			expect {
 				HTTPThumbnailerClient::URIBuilder.thumbnail('pad', 32, 64, 'png', {magick: 'blah', number: 2}) do
 					edit 'test', {hello: nil}
 				end
-			}.to raise_error HTTPThumbnailerClient::InvalidThumbnailSpecificationError, "missing option value for key 'hello' for edit 'test'"
+			}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyValueError, "missing option value for key 'hello' for edit 'test'"
 		end
 	end
 

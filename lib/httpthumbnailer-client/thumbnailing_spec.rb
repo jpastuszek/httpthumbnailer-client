@@ -1,6 +1,34 @@
 class HTTPThumbnailerClient
 	#TODO: support for escaping of ! and ,
 	class ThumbnailingSpec
+		class Builder
+			def initialize(method, width, height, format = 'jpeg', options = {}, &block)
+				@spec = ThumbnailingSpec.new(method, width.to_s, height.to_s, format, options)
+				instance_eval(&block) if block
+			end
+
+			def edit(name, *args)
+				edit_options, args = *args.partition{|e| e.kind_of? Hash}
+				edit_options = edit_options.reduce({}) do |acc, opt|
+					acc.merge! opt
+				end
+
+				edit_spec ThumbnailingSpec::EditSpec.new(name, args, edit_options)
+				self
+			end
+
+			def edit_spec(spec)
+				@spec.edits << spec
+				self
+			end
+
+			attr_reader :spec
+
+			def to_s
+				@spec.to_s
+			end
+		end
+
 		class InvalidFormatError < ArgumentError
 			def for_edit(name)
 				exception "#{message} for edit '#{name}'"
