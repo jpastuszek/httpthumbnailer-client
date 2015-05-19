@@ -63,8 +63,9 @@ describe HTTPThumbnailerClient::URIBuilder do
 			end
 			it 'should respond to .edits only' do
 				subject.should respond_to :edit
+				subject.should respond_to :edit_spec
 				subject.should_not respond_to :thumbnail
-				subject.should_not respond_to :thumbnails
+				subject.should_not respond_to :thumbnail_spec
 			end
 		end
 	end
@@ -95,15 +96,16 @@ describe HTTPThumbnailerClient::URIBuilder do
 		describe 'available builder methods' do
 			subject do
 				inner_context = nil
-				HTTPThumbnailerClient::URIBuilder.thumbnail('pad', 32, 64, 'png', {magick: 'xdfa', number: 2}) do
+				HTTPThumbnailerClient::URIBuilder.thumbnails do
 					inner_context = self
 				end
 				inner_context
 			end
-			it 'should respond to thumbnail and spec only' do
+			it 'should respond to #thumbnail and #thumbnail_spec only' do
 				subject.should_not respond_to :edit
+				subject.should_not respond_to :edit_spec
 				subject.should respond_to :thumbnail
-				subject.should_not respond_to :thumbnails
+				subject.should respond_to :thumbnail_spec
 			end
 		end
 	end
@@ -144,16 +146,16 @@ describe HTTPThumbnailerClient::URIBuilder do
 			HTTPThumbnailerClient::ThumbnailingSpec.new('pad', '100', '200', 'PNG')
 		end
 
-		describe '#for_specs' do
+		describe '#specs' do
 			context 'when provided single ThumbnailingSpec object' do
 				it 'should build URI for single thumbnail API with that spec' do
-					HTTPThumbnailerClient::URIBuilder.for_specs(spec1).should == '/thumbnail/crop,100,200,PNG,a:b,abc:xyz!rotate,30,background-color:red,blah:xyz!crop,1,2,3,4'
+					HTTPThumbnailerClient::URIBuilder.specs(spec1).should == '/thumbnail/crop,100,200,PNG,a:b,abc:xyz!rotate,30,background-color:red,blah:xyz!crop,1,2,3,4'
 				end
 			end
 
 			context 'when provided multiple ThumbnailingSpec object' do
 				it 'should build URI for multiple thumbnail API with that specs' do
-					HTTPThumbnailerClient::URIBuilder.for_specs(spec1, spec2).should == '/thumbnails/crop,100,200,PNG,a:b,abc:xyz!rotate,30,background-color:red,blah:xyz!crop,1,2,3,4/pad,100,200,PNG'
+					HTTPThumbnailerClient::URIBuilder.specs(spec1, spec2).should == '/thumbnails/crop,100,200,PNG,a:b,abc:xyz!rotate,30,background-color:red,blah:xyz!crop,1,2,3,4/pad,100,200,PNG'
 				end
 			end
 		end
@@ -184,6 +186,44 @@ describe HTTPThumbnailerClient::URIBuilder do
 						thumbnail_spec(s2)
 					end
 					.should == '/thumbnails/crop,100,200,PNG,a:b,abc:xyz!rotate,30,background-color:red,blah:xyz!crop,1,2,3,4/pad,100,200,PNG'
+				end
+			end
+		end
+
+		describe 'directly on builder object' do
+			context 'with #thumbnail_spec' do
+				it 'should build URI for single thumbnail API with single spec' do
+					builder = HTTPThumbnailerClient::URIBuilder.new
+					builder.thumbnail_spec(spec1)
+					builder.to_s.should == '/thumbnail/crop,100,200,PNG,a:b,abc:xyz!rotate,30,background-color:red,blah:xyz!crop,1,2,3,4'
+				end
+
+				it 'should build URI for multiple thumbnail API with that specs' do
+					builder = HTTPThumbnailerClient::URIBuilder.new
+					builder.thumbnail_spec(spec1)
+					builder.thumbnail_spec(spec2)
+					builder.to_s.should == '/thumbnails/crop,100,200,PNG,a:b,abc:xyz!rotate,30,background-color:red,blah:xyz!crop,1,2,3,4/pad,100,200,PNG'
+				end
+			end
+
+			context 'with #thumbnail builder' do
+				it 'should build URI for single thumbnail API with single spec' do
+					builder = HTTPThumbnailerClient::URIBuilder.new
+					builder.thumbnail('crop', 16, 16, 'jpeg') do
+						edit('test', '1', '2')
+						edit('test2', {'b' => 2, 'a' => 1})
+					end
+					builder.to_s.should == '/thumbnail/crop,16,16,jpeg!test,1,2!test2,a:1,b:2'
+				end
+
+				it 'should build URI for multiple thumbnail API with that specs' do
+					builder = HTTPThumbnailerClient::URIBuilder.new
+					builder.thumbnail('crop', 16, 16, 'jpeg') do
+						edit('test', '1', '2')
+						edit('test2', {'b' => 2, 'a' => 1})
+					end
+					builder.thumbnail('pad', 10, 10, 'PNG')
+					builder.to_s.should == '/thumbnails/crop,16,16,jpeg!test,1,2!test2,a:1,b:2/pad,10,10,PNG'
 				end
 			end
 		end
