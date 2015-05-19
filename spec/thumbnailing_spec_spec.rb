@@ -41,23 +41,23 @@ describe HTTPThumbnailerClient::ThumbnailingSpec do
 				it 'should rain MissingArgumentError on empty argument list' do
 					expect {
 						subject.from_string('')
-					}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingArgumentError, 'missing name argument'
+					}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingArgumentError, 'missing edit name argument'
 				end
 
 				it 'should rain MissingArgumentError on empty name' do
 					expect {
 						subject.from_string(',1,2,3,4')
-					}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingArgumentError, 'missing name argument'
+					}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingArgumentError, 'missing edit name argument'
 				end
 
 				context 'options' do
 					it 'should raise same MissingOptionKeyValueError as for #parse_options but with edit name' do
 						expect {
 							subject.from_string('crop,:world,this:is:a:test,abc:123')
-						}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::InvalidOptionsFormatError, "missing option key name for value 'world' for edit 'crop'"
+						}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyNameError, "missing option key name for value 'world' for edit 'crop'"
 						expect {
 							subject.from_string('rotate,30,blah:')
-						}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::InvalidOptionsFormatError, "missing option key value for key 'blah' for edit 'rotate'"
+						}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyValueError, "missing option key value for key 'blah' for edit 'rotate'"
 					end
 				end
 			end

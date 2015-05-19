@@ -13,7 +13,11 @@ class HTTPThumbnailerClient
 			end
 		end
 
-		InvalidOptionsFormatError = Class.new ArgumentError
+		class InvalidOptionsFormatError < ArgumentError
+			def for_edit(name)
+				exception "#{message} for edit '#{name}'"
+			end
+		end
 
 		class MissingOptionKeyValuePairError < InvalidOptionsFormatError
 			def initialize(index)
@@ -41,7 +45,7 @@ class HTTPThumbnailerClient
 
 			def self.from_string(spec)
 				name, args = *spec.split(',', 2)
-				name.nil? or name.empty? and raise MissingArgumentError, 'name'
+				name.nil? or name.empty? and raise MissingArgumentError, 'edit name'
 				args = *args.split(',')
 
 				options = args.drop_while{|a| not a.include?(':')}
@@ -50,7 +54,7 @@ class HTTPThumbnailerClient
 				begin
 					options = options.empty? ? {} : HTTPThumbnailerClient::ThumbnailingSpec.parse_options(options.join(','))
 				rescue InvalidOptionsFormatError => error
-					raise InvalidOptionsFormatError, "#{error} for edit '#{name}'"
+					raise error.for_edit(name)
 				end
 				new(name, args, options)
 			end
