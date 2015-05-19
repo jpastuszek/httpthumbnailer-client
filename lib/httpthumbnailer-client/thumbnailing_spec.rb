@@ -43,16 +43,14 @@ class HTTPThumbnailerClient
 			def self.build
 			end
 
-			def self.from_string(spec)
-				name, args = *spec.split(',', 2)
+			def self.from_string(string)
+				args = HTTPThumbnailerClient::ThumbnailingSpec.split_args(string)
+				args, options = HTTPThumbnailerClient::ThumbnailingSpec.partition_args_options(args)
+				name = args.shift
 				name.nil? or name.empty? and raise MissingArgumentError, 'edit name'
-				args = *args.split(',')
-
-				options = args.drop_while{|a| not a.include?(':')}
-				args = args.take_while{|a| not a.include?(':')}
 
 				begin
-					options = options.empty? ? {} : HTTPThumbnailerClient::ThumbnailingSpec.parse_options(options.join(','))
+					options = HTTPThumbnailerClient::ThumbnailingSpec.parse_options(options)
 				rescue InvalidFormatError => error
 					raise error.for_edit(name)
 				end
@@ -71,9 +69,12 @@ class HTTPThumbnailerClient
 		def self.build
 		end
 
-		def self.from_string(spec)
-			spec, edits = *spec.split('!', 2)
-			method, width, height, format, options = *spec.split(',', 5)
+		def self.from_string(string)
+			edits = split_edits(string)
+			spec = edits.shift
+			args = split_args(spec)
+			args, options = partition_args_options(args)
+			method, width, height, format = *args.shift(4) # ignore extra args
 
 			method.nil? or method.empty? and raise MissingArgumentError, 'method'
 			width.nil? or width.empty? and raise MissingArgumentError, 'width'
@@ -83,8 +84,8 @@ class HTTPThumbnailerClient
 			width !~ /^([0-9]+|input)$/ and raise InvalidArgumentValueError.new('width', width, "an integer or 'input'")
 			height !~ /^([0-9]+|input)$/ and raise InvalidArgumentValueError.new('height', height, "an integer or 'input'")
 
-			options = options ? parse_options(options) : {}
-			edits = edits ? edits.split('!').map{|e| EditSpec.from_string(e)} : []
+			options = parse_options(options)
+			edits = edits.map{|e| EditSpec.from_string(e)}
 
 			new(method, width, height, format, options, edits)
 		end
@@ -101,8 +102,22 @@ class HTTPThumbnailerClient
 		def to_thumbnailer_uri
 		end
 
+		def self.split_edits(string)
+			string.split('!')
+		end
+
+		def self.split_args(string)
+			string.split(',')
+		end
+
+		def self.partition_args_options(args)
+			options = args.drop_while{|a| not a.include?(':')}
+			args = args.take_while{|a| not a.include?(':')}
+			[args, options]
+		end
+
 		def self.parse_options(options)
-			Hash[options.to_s.split(',').map.with_index do |pair, index|
+			Hash[options.map.with_index do |pair, index|
 				pair.empty? and raise MissingOptionKeyValuePairError, index
 				pair.split(':', 2)
 			end].tap do |map|

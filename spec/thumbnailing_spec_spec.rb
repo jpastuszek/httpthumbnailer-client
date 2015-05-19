@@ -37,7 +37,7 @@ describe HTTPThumbnailerClient::ThumbnailingSpec do
 					end
 				end
 			end
-			context 'with invalid input' do
+			context 'for invalid input' do
 				it 'should rain MissingArgumentError on empty argument list' do
 					expect {
 						subject.from_string('')
@@ -65,46 +65,46 @@ describe HTTPThumbnailerClient::ThumbnailingSpec do
 	end
 
 	describe '#parse_options' do
-		context 'for valid input string' do
+		context 'for valid input array of option strings' do
 			it 'should provide hash map' do
-				options = subject.parse_options('hello:world,this:is:a:test,abc:123')
+				options = subject.parse_options(['hello:world', 'this:is:a:test', 'abc:123'])
 				options.should == {'hello' => 'world', 'this' => 'is:a:test', 'abc' => '123'}
 			end
 		end
-		context 'with invalid input' do
+		context 'for invalid input' do
 			it 'should raise MissingOptionKeyNameError on empty key name' do
 				expect {
-					subject.parse_options(':world,this:is:a:test,abc:123')
+					subject.parse_options([':world', 'this:is:a:test', 'abc:123'])
 				}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyNameError, "missing option key name for value 'world'"
 				expect {
-					subject.parse_options('hello:world,:test,abc:123')
+					subject.parse_options(['hello:world', ':test', 'abc:123'])
 				}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyNameError, "missing option key name for value 'test'"
 			end
 
 			it 'should raise MissingOptionKeyValuePairError on empty key-value pair' do
 				expect {
-					subject.parse_options(',this:is:a:test,abc:123')
+					subject.parse_options(['', 'this:is:a:test', 'abc:123'])
 				}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyValuePairError, "missing key-value pair on position 1"
 				expect {
-					subject.parse_options('hello:world,,abc:123')
+					subject.parse_options(['hello:world', '', 'abc:123'])
 				}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyValuePairError, "missing key-value pair on position 2"
 			end
 
 			it 'should raise MissingOptionKeyValueError on empty key value' do
 				expect {
-					subject.parse_options('hello:,this:is:a:test,abc:123')
+					subject.parse_options(['hello:', 'this:is:a:test', 'abc:123'])
 				}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyValueError, "missing option key value for key 'hello'"
 				expect {
-					subject.parse_options('hello:world,this:,abc:123')
+					subject.parse_options(['hello:world', 'this:', 'abc:123'])
 				}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyValueError, "missing option key value for key 'this'"
 			end
 
 			it 'should raise MissingOptionKeyValueError on missing key-value separator' do
 				expect {
-					subject.parse_options('hello,this:is:a:test,abc:123')
+					subject.parse_options(['hello', 'this:is:a:test', 'abc:123'])
 				}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyValueError, "missing option key value for key 'hello'"
 				expect {
-					subject.parse_options('hello:world,this,abc:123')
+					subject.parse_options(['hello:world', 'this', 'abc:123'])
 				}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyValueError, "missing option key value for key 'this'"
 			end
 		end
@@ -149,6 +149,15 @@ describe HTTPThumbnailerClient::ThumbnailingSpec do
 					spec.edits[1].name.should == 'rotate'
 					spec.edits[1].args.should have(1).argument
 					spec.edits[1].args.should == ['30']
+				end
+			end
+		end
+		context 'for invalid input' do
+			context 'with missing arguments' do
+				it 'should raise MissingArgumentError' do
+					expect {
+						subject.from_string('pad,123,input,hello:world,this:is:a:test,abc:123')
+					}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingArgumentError, 'missing format argument'
 				end
 			end
 		end
