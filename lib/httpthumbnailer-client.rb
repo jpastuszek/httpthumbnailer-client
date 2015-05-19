@@ -58,34 +58,11 @@ class HTTPThumbnailerClient
 	InvalidMultipartResponseError = Class.new HTTPThumbnailerClientError
 
 	class URIBuilder
-		attr_reader :specs
-
 		def initialize(service_uri, &block)
 			@specs = []
 			@service_uri = service_uri
 			instance_eval(&block) if block
 		end
-
-		def edit(name, *args)
-			edit_options, args = *args.partition{|e| e.kind_of? Hash}
-			edit_options = edit_options.reduce({}) do |acc, opt|
-				acc.merge! opt
-			end
-
-			@specs.empty? and raise ArgumentError, "edit can only be used with thumbnail specification"
-			@specs.last.edits << ThumbnailingSpec::EditSpec.new(name, args, edit_options)
-			self
-		rescue ThumbnailingSpec::InvalidFormatError => error
-			raise InvalidThumbnailSpecificationError, error.message
-		end
-
-		def to_s
-			"#{@service_uri}/#{@specs.map(&:to_s).join('/')}"
-		rescue ThumbnailingSpec::InvalidFormatError => error
-			raise InvalidThumbnailSpecificationError, error.message
-		end
-
-		alias :get :to_s
 
 		def self.thumbnail(method, width, height, format = 'jpeg', options = {}, &block)
 			self.new('/thumbnail').thumbnail(method, width, height, format, options, &block).to_s
@@ -97,20 +74,48 @@ class HTTPThumbnailerClient
 
 		def self.for_specs(*specs)
 			uri = specs.length > 1 ? '/thumbnails' : '/thumbnail'
-			b = new(uri)
-			specs.each do |spec|
-				b.specs << spec
-			end
-			b.to_s
+			specs.each.with_object(new(uri)) do |spec, builder|
+				builder.thumbnail_spec spec
+			end.to_s
 		end
 
 		def thumbnail(method, width, height, format = 'jpeg', options = {}, &block)
-			@specs << ThumbnailingSpec.new(method, width.to_s, height.to_s, format, options)
+			thumbnail_spec ThumbnailingSpec.new(method, width.to_s, height.to_s, format, options)
 			instance_eval(&block) if block
 			self
 		rescue ThumbnailingSpec::InvalidFormatError => error
 			raise InvalidThumbnailSpecificationError, error.message
 		end
+
+		def thumbnail_spec(spec)
+			@specs << spec
+		end
+
+		def edit(name, *args)
+			edit_options, args = *args.partition{|e| e.kind_of? Hash}
+			edit_options = edit_options.reduce({}) do |acc, opt|
+				acc.merge! opt
+			end
+
+			edit_spec ThumbnailingSpec::EditSpec.new(name, args, edit_options)
+			self
+		rescue ThumbnailingSpec::InvalidFormatError => error
+			raise InvalidThumbnailSpecificationError, error.message
+		end
+
+		def edit_spec(spec)
+			@specs.empty? and raise ArgumentError, "edit can only be used with thumbnail specification"
+			@specs.last.edits << spec
+			self
+		end
+
+		def to_s
+			"#{@service_uri}/#{@specs.map(&:to_s).join('/')}"
+		rescue ThumbnailingSpec::InvalidFormatError => error
+			raise InvalidThumbnailSpecificationError, error.message
+		end
+
+		alias :get :to_s
 	end
 
 	class Thumbnail

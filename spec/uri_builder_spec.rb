@@ -25,31 +25,28 @@ describe HTTPThumbnailerClient::URIBuilder do
 
 		context 'with edits' do
 			it 'should add edits to the URL' do
-				HTTPThumbnailerClient::URIBuilder
-					.thumbnail('pad', 32, 64, 'png', {magick: 'xdfa', number: 2}) do
-						edit('crop', 0.1, 0.1, 0.8, 0.8)
-						edit('blur', 0.5, 0.5, 0.1, 0.1)
-					end
+				HTTPThumbnailerClient::URIBuilder.thumbnail('pad', 32, 64, 'png', {magick: 'xdfa', number: 2}) do
+					edit('crop', 0.1, 0.1, 0.8, 0.8)
+					edit('blur', 0.5, 0.5, 0.1, 0.1)
+				end
 				.should == '/thumbnail/pad,32,64,png,magick:xdfa,number:2!crop,0.1,0.1,0.8,0.8!blur,0.5,0.5,0.1,0.1'
 			end
 
 			context 'with edit options' do
 				it 'should build URL with given options' do
-					HTTPThumbnailerClient::URIBuilder
-						.thumbnail('pad', 32, 64, 'png', {magick: 'xdfa', number: 2}) do
-							edit('crop', 0.1, 0.1, 0.8, 0.8)
-							edit('blur', 0.5, 0.5, 0.1, 0.1, {'sigma' => 31})
-						end
+					HTTPThumbnailerClient::URIBuilder.thumbnail('pad', 32, 64, 'png', {magick: 'xdfa', number: 2}) do
+						edit('crop', 0.1, 0.1, 0.8, 0.8)
+						edit('blur', 0.5, 0.5, 0.1, 0.1, {'sigma' => 31})
+					end
 					.should == '/thumbnail/pad,32,64,png,magick:xdfa,number:2!crop,0.1,0.1,0.8,0.8!blur,0.5,0.5,0.1,0.1,sigma:31'
 				end
 
 				context 'with options provided in symbol to primitive form' do
 					it 'should build URL with given options converted to proper from' do
-						HTTPThumbnailerClient::URIBuilder
-							.thumbnail('pad', 32, 64, 'png', {magick: 'xdfa', number: 2}) do
-								edit('crop', 0.1, 0.1, 0.8, 0.8)
-								edit('rotate', 90, {background_color: 'red', test: 42})
-							end
+						HTTPThumbnailerClient::URIBuilder.thumbnail('pad', 32, 64, 'png', {magick: 'xdfa', number: 2}) do
+							edit('crop', 0.1, 0.1, 0.8, 0.8)
+							edit('rotate', 90, {background_color: 'red', test: 42})
+						end
 						.should == '/thumbnail/pad,32,64,png,magick:xdfa,number:2!crop,0.1,0.1,0.8,0.8!rotate,90,background-color:red,test:42'
 					end
 				end
@@ -57,7 +54,18 @@ describe HTTPThumbnailerClient::URIBuilder do
 		end
 
 		describe 'available builder methods' do
-			pending
+			subject do
+				inner_context = nil
+				HTTPThumbnailerClient::URIBuilder.thumbnail('pad', 32, 64, 'png', {magick: 'xdfa', number: 2}) do
+					inner_context = self
+				end
+				inner_context
+			end
+			it 'should respond to .edits only' do
+				subject.should respond_to :edit
+				subject.should_not respond_to :thumbnail
+				subject.should_not respond_to :thumbnails
+			end
 		end
 	end
 
@@ -85,7 +93,18 @@ describe HTTPThumbnailerClient::URIBuilder do
 		end
 
 		describe 'available builder methods' do
-			pending
+			subject do
+				inner_context = nil
+				HTTPThumbnailerClient::URIBuilder.thumbnail('pad', 32, 64, 'png', {magick: 'xdfa', number: 2}) do
+					inner_context = self
+				end
+				inner_context
+			end
+			it 'should respond to thumbnail and spec only' do
+				subject.should_not respond_to :edit
+				subject.should respond_to :thumbnail
+				subject.should_not respond_to :thumbnails
+			end
 		end
 	end
 
@@ -106,11 +125,18 @@ describe HTTPThumbnailerClient::URIBuilder do
 	end
 
 	describe 'building from provided specs' do
+		let :edit1 do
+			HTTPThumbnailerClient::ThumbnailingSpec::EditSpec.new('rotate', ['30'], 'background-color' => 'red', 'blah' => 'xyz')
+		end
+
+		let :edit2 do
+			HTTPThumbnailerClient::ThumbnailingSpec::EditSpec.new('crop', ['1', '2', '3', '4'])
+		end
+
 		let :spec1 do
 			edits = []
-			edits << HTTPThumbnailerClient::ThumbnailingSpec::EditSpec.new('rotate', ['30'], 'background-color' => 'red', 'blah' => 'xyz')
-			edits << HTTPThumbnailerClient::ThumbnailingSpec::EditSpec.new('crop', ['1', '2', '3', '4'])
-
+			edits << edit1
+			edits << edit2
 			HTTPThumbnailerClient::ThumbnailingSpec.new('crop', '100', '200', 'PNG', {'abc' => 'xyz', 'a' => 'b'}, edits)
 		end
 
@@ -128,6 +154,36 @@ describe HTTPThumbnailerClient::URIBuilder do
 			context 'when provided multiple ThumbnailingSpec object' do
 				it 'should build URI for multiple thumbnail API with that specs' do
 					HTTPThumbnailerClient::URIBuilder.for_specs(spec1, spec2).should == '/thumbnails/crop,100,200,PNG,a:b,abc:xyz!rotate,30,background-color:red,blah:xyz!crop,1,2,3,4/pad,100,200,PNG'
+				end
+			end
+		end
+
+		describe 'building single thumbnail URL' do
+			describe '#edit_spec' do
+				it 'should allow passing EditSpec object' do
+					e1 = edit1
+					e2 = edit2
+
+					HTTPThumbnailerClient::URIBuilder.thumbnail('pad', 32, 64, 'png', {magick: 'xdfa', number: 2}) do
+						edit_spec(e1)
+						edit_spec(e2)
+					end
+					.should == '/thumbnail/pad,32,64,png,magick:xdfa,number:2!rotate,30,background-color:red,blah:xyz!crop,1,2,3,4'
+				end
+			end
+		end
+
+		describe 'multipart thumbanils URI' do
+			describe '#thumbnail_spec' do
+				it 'should allow passing ThumbnailingSpec object' do
+					s1 = spec1
+					s2 = spec2
+
+					HTTPThumbnailerClient::URIBuilder.thumbnails do
+						thumbnail_spec(s1)
+						thumbnail_spec(s2)
+					end
+					.should == '/thumbnails/crop,100,200,PNG,a:b,abc:xyz!rotate,30,background-color:red,blah:xyz!crop,1,2,3,4/pad,100,200,PNG'
 				end
 			end
 		end
