@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib"]
   s.authors = ["Jakub Pastuszek"]
-  s.date = "2015-05-24"
+  s.date = "2015-05-25"
   s.description = "Thumbnails images using httpthumbniler server"
   s.email = "jpastuszek@gmail.com"
   s.executables = ["httpthumbnailer-client"]
@@ -21,7 +21,6 @@ Gem::Specification.new do |s|
   ]
   s.files = [
     ".document",
-    ".rspec",
     "Gemfile",
     "Gemfile.lock",
     "LICENSE.txt",
@@ -29,26 +28,13 @@ Gem::Specification.new do |s|
     "Rakefile",
     "VERSION",
     "bin/httpthumbnailer-client",
-    "features/step_definitions/httpthumbnailer-client_steps.rb",
-    "features/support/env.rb",
-    "httpthumbnailer-client.gemspec",
     "lib/httpthumbnailer-client.rb",
     "lib/httpthumbnailer-client/thumbnailing_spec.rb",
-    "lib/httpthumbnailer-client/uri_builder.rb",
-    "spec/httpthumbnailer-client_spec.rb",
-    "spec/identify_spec.rb",
-    "spec/spec_helper.rb",
-    "spec/support/test-large.jpg",
-    "spec/support/test.jpg",
-    "spec/support/test.txt",
-    "spec/thumbnail_spec.rb",
-    "spec/thumbnailing_spec_spec.rb",
-    "spec/thumbnails_spec.rb",
-    "spec/uri_builder_spec.rb"
+    "lib/httpthumbnailer-client/uri_builder.rb"
   ]
   s.homepage = "http://github.com/jpastuszek/httpthumbnailer-client"
   s.licenses = ["MIT"]
-  s.rubygems_version = "2.2.2"
+  s.rubygems_version = "2.4.7"
   s.summary = "API client for httpthumbniler server"
 
   if s.respond_to? :specification_version then
