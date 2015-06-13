@@ -33,6 +33,10 @@ class HTTPThumbnailerClient
 			def for_edit(name)
 				exception "#{message} for edit '#{name}'"
 			end
+
+			def in_spec(spec)
+				exception "#{message} in spec '#{spec}'"
+			end
 		end
 
 		class MissingArgumentError < InvalidFormatError
@@ -111,6 +115,8 @@ class HTTPThumbnailerClient
 			edits = edits.map{|e| EditSpec.from_string(e)}
 
 			new(method, width, height, format, options, edits)
+		rescue InvalidFormatError => error
+			raise error.in_spec(string)
 		end
 
 		def initialize(method, width, height, format, options = {}, edits = [])

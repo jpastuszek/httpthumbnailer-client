@@ -225,7 +225,7 @@ describe HTTPThumbnailerClient::ThumbnailingSpec do
 				it 'should raise MissingArgumentError' do
 					expect {
 						subject.from_string('pad,123,input,hello:world,this:is:a:test,abc:123')
-					}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingArgumentError, 'missing format argument'
+					}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingArgumentError, "missing format argument in spec 'pad,123,input,hello:world,this:is:a:test,abc:123'"
 				end
 			end
 		end
