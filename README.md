@@ -2,6 +2,13 @@
 
 Ruby client to [httpthumbnailer](http://github.com/jpastuszek/httpthumbnailer) image scaling and conversion HTTP API server.
 
+## Changelog
+
+### 1.3.0
+* added edits support
+* better spec parsing and error handling
+* using single thumbnail API if only one thumbnail spec defined
+
 ## Installing
 
 ```bash
