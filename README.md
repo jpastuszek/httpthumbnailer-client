@@ -30,7 +30,7 @@ thumbnail.data        # => 60x30 thumbnail JPEG data String
 
 # generate set of thumbnails from image data (multipart API)
 thumbnails = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail(data) do
-	thumbnail 'crop', 60, 30, 'jpeg' 
+  thumbnail 'crop', 60, 30, 'jpeg'
 	thumbnail 'crop', 80, 80, 'png'
 	thumbnail 'pad', 40, 40, 'png'
 end
@@ -65,9 +65,28 @@ id = HTTPThumbnailerClient.new('http://localhost:3100').with_headers('XID' => '1
 id.mime_type  # => 'image/jpeg'
 id.width      # => 800
 id.height     # => 600
+
+# generate single thumbnail from image data with additional edits
+thumbnail = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail(data, 'crop', 60, 30, 'jpeg') do
+	edit 'rotate', 90
+	edit 'pixelate', 0.3, 0.2, 0.4, 0.4
+end
+
+# generate set of thumbnails from image data with additional edits
+thumbnails = HTTPThumbnailerClient.new('http://localhost:3100').thumbnail(data) do
+	thumbnail 'crop', 60, 30, 'jpeg' do
+		edit 'rotate', 90
+	end
+	thumbnail 'crop', 80, 80, 'png' do
+		edit 'rotate', 270
+		edit 'pixelate', 0.3, 0.2, 0.4, 0.4
+	end
+	thumbnail 'pad', 40, 40, 'png'
+end
 ```
 
 For more details see RSpec for [single thumbnail API](http://github.com/jpastuszek/httpthumbnailer-client/blob/master/spec/thumbnail_spec.rb) and [multipart API](http://github.com/jpastuszek/httpthumbnailer-client/blob/master/spec/thumbnails_spec.rb).
+Note that when providing only one thumbnailing specification using multipart API style the client will actually use single thumbnail API instead.
 
 ### CLI tool
 
@@ -85,10 +104,13 @@ cat image.jpg | httpthumbnailer-client -t crop,100,200,png > thumbnail.png
 
 # generate multiple thumbnails
 cat image.jpg | httpthumbnailer-client -t crop,100,200,jpeg,quality:100 -t pad,200,200,png thumbnail1.jpg thumbnail2.png
+
+# generate thumbnail with edits
+cat image.jpg | httpthumbnailer-client -t 'fit,280,280,png!pixelate,0.3,0.2,0.4,0.4!rectangle,0.04,0.8,0.92,0.17,color:blue' > thumbnail.png
 ```
 
 ## Contributing to HTTP Thubnailer Client
- 
+
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
 * Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
 * Fork the project
@@ -99,6 +121,5 @@ cat image.jpg | httpthumbnailer-client -t crop,100,200,jpeg,quality:100 -t pad,2
 
 ## Copyright
 
-Copyright (c) 2013 Jakub Pastuszek. See LICENSE.txt for
-further details.
+Copyright (c) 2013 - 2015 Jakub Pastuszek. See LICENSE.txt for further details.
 
