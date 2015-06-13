@@ -1,6 +1,6 @@
 # HTTP Thubnailer Client
 
-Ruby client to [httpthumbnailer](http://github.com/jpastuszek/httpthumbnailer) image scaling and conversion HTTP API server.
+Ruby client to [httpthumbnailer](http://github.com/jpastuszek/httpthumbnailer) image thumbnailing, editing and format conversion HTTP API server.
 
 ## Changelog
 
