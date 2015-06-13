@@ -51,8 +51,8 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<rdoc>, ["~> 3.9"])
       s.add_development_dependency(%q<daemon>, ["~> 1"])
       s.add_development_dependency(%q<rmagick>, ["~> 2"])
-      s.add_development_dependency(%q<httpthumbnailer>, ["~> 1.3"])
-      s.add_development_dependency(%q<unicorn-cuba-base>, ["~> 1.5"])
+      s.add_development_dependency(%q<httpthumbnailer>, ["~> 1"])
+      s.add_development_dependency(%q<unicorn-cuba-base>, ["~> 1"])
     else
       s.add_dependency(%q<httpclient>, [">= 2.3", "~> 2.0"])
       s.add_dependency(%q<cli>, ["~> 1.3"])
@@ -64,8 +64,8 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<rdoc>, ["~> 3.9"])
       s.add_dependency(%q<daemon>, ["~> 1"])
       s.add_dependency(%q<rmagick>, ["~> 2"])
-      s.add_dependency(%q<httpthumbnailer>, ["~> 1.3"])
-      s.add_dependency(%q<unicorn-cuba-base>, ["~> 1.5"])
+      s.add_dependency(%q<httpthumbnailer>, ["~> 1"])
+      s.add_dependency(%q<unicorn-cuba-base>, ["~> 1"])
     end
   else
     s.add_dependency(%q<httpclient>, [">= 2.3", "~> 2.0"])
@@ -78,8 +78,8 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<rdoc>, ["~> 3.9"])
     s.add_dependency(%q<daemon>, ["~> 1"])
     s.add_dependency(%q<rmagick>, ["~> 2"])
-    s.add_dependency(%q<httpthumbnailer>, ["~> 1.3"])
-    s.add_dependency(%q<unicorn-cuba-base>, ["~> 1.5"])
+    s.add_dependency(%q<httpthumbnailer>, ["~> 1"])
+    s.add_dependency(%q<unicorn-cuba-base>, ["~> 1"])
   end
 end
 
