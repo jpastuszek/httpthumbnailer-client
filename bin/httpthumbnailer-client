@@ -30,7 +30,7 @@ end.parse! do |settings|
 	STDERR.puts "Warning: there is more thumbnail specifications given than output file names; some thumbnails will not be saved" if settings.thumbnail.length > settings.output_file_name.length
 	fail 'only one thumbnail can be written to STDOUT' if settings.output_file_name.count('-') > 1
 	settings.thumbnail.map! do |spec|
-		HTTPThumbnailerClient::ThumbnailingSpec.from_string(spec)
+		HTTPThumbnailerClient::ThumbnailSpec.from_string(spec)
 	end
 end
 

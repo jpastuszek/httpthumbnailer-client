@@ -29,7 +29,7 @@ Gem::Specification.new do |s|
     "VERSION",
     "bin/httpthumbnailer-client",
     "lib/httpthumbnailer-client.rb",
-    "lib/httpthumbnailer-client/thumbnailing_spec.rb",
+    "lib/httpthumbnailer-client/thumbnail_spec.rb",
     "lib/httpthumbnailer-client/uri_builder.rb"
   ]
   s.homepage = "http://github.com/jpastuszek/httpthumbnailer-client"

@@ -1,4 +1,4 @@
-require_relative 'thumbnailing_spec'
+require_relative 'thumbnail_spec'
 
 class HTTPThumbnailerClient
 	class URIBuilder
@@ -22,7 +22,7 @@ class HTTPThumbnailerClient
 		end
 
 		def thumbnail(method, width, height, format = 'jpeg', options = {}, &block)
-			thumbnail_spec ThumbnailingSpec::Builder.new(method, width.to_s, height.to_s, format, options, &block).spec
+			thumbnail_spec ThumbnailSpec::Builder.new(method, width.to_s, height.to_s, format, options, &block).spec
 			self
 		end
 

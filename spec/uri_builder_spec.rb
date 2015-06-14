@@ -112,49 +112,49 @@ describe HTTPThumbnailerClient::URIBuilder do
 	end
 
 	describe 'error handling' do
-		it 'should raise ThumbnailingSpec::MissingOptionKeyValueError on bad thumbaniling options' do
+		it 'should raise ThumbnailSpec::MissingOptionKeyValueError on bad thumbaniling options' do
 			expect {
 				HTTPThumbnailerClient::URIBuilder.thumbnail('pad', 32, 64, 'png', {magick: nil, number: 2})
-			}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyValueError, "missing option value for key 'magick'"
+			}.to raise_error HTTPThumbnailerClient::ThumbnailSpec::MissingOptionKeyValueError, "missing option value for key 'magick'"
 		end
 
-		it 'should raise ThumbnailingSpec::MissingOptionKeyValueError on bad edit options' do
+		it 'should raise ThumbnailSpec::MissingOptionKeyValueError on bad edit options' do
 			expect {
 				HTTPThumbnailerClient::URIBuilder.thumbnail('pad', 32, 64, 'png', {magick: 'blah', number: 2}) do
 					edit 'test', {hello: nil}
 				end
-			}.to raise_error HTTPThumbnailerClient::ThumbnailingSpec::MissingOptionKeyValueError, "missing option value for key 'hello' for edit 'test'"
+			}.to raise_error HTTPThumbnailerClient::ThumbnailSpec::MissingOptionKeyValueError, "missing option value for key 'hello' for edit 'test'"
 		end
 	end
 
 	describe 'building from provided specs' do
 		let :edit1 do
-			HTTPThumbnailerClient::ThumbnailingSpec::EditSpec.new('rotate', ['30'], 'background-color' => 'red', 'blah' => 'xyz')
+			HTTPThumbnailerClient::ThumbnailSpec::EditSpec.new('rotate', ['30'], 'background-color' => 'red', 'blah' => 'xyz')
 		end
 
 		let :edit2 do
-			HTTPThumbnailerClient::ThumbnailingSpec::EditSpec.new('crop', ['1', '2', '3', '4'])
+			HTTPThumbnailerClient::ThumbnailSpec::EditSpec.new('crop', ['1', '2', '3', '4'])
 		end
 
 		let :spec1 do
 			edits = []
 			edits << edit1
 			edits << edit2
-			HTTPThumbnailerClient::ThumbnailingSpec.new('crop', '100', '200', 'PNG', {'abc' => 'xyz', 'a' => 'b'}, edits)
+			HTTPThumbnailerClient::ThumbnailSpec.new('crop', '100', '200', 'PNG', {'abc' => 'xyz', 'a' => 'b'}, edits)
 		end
 
 		let :spec2 do
-			HTTPThumbnailerClient::ThumbnailingSpec.new('pad', '100', '200', 'PNG')
+			HTTPThumbnailerClient::ThumbnailSpec.new('pad', '100', '200', 'PNG')
 		end
 
 		describe '#specs' do
-			context 'when provided single ThumbnailingSpec object' do
+			context 'when provided single ThumbnailSpec object' do
 				it 'should build URI for single thumbnail API with that spec' do
 					HTTPThumbnailerClient::URIBuilder.specs(spec1).should == '/thumbnail/crop,100,200,PNG,a:b,abc:xyz!rotate,30,background-color:red,blah:xyz!crop,1,2,3,4'
 				end
 			end
 
-			context 'when provided multiple ThumbnailingSpec object' do
+			context 'when provided multiple ThumbnailSpec object' do
 				it 'should build URI for multiple thumbnail API with that specs' do
 					HTTPThumbnailerClient::URIBuilder.specs(spec1, spec2).should == '/thumbnails/crop,100,200,PNG,a:b,abc:xyz!rotate,30,background-color:red,blah:xyz!crop,1,2,3,4/pad,100,200,PNG'
 				end
@@ -178,7 +178,7 @@ describe HTTPThumbnailerClient::URIBuilder do
 
 		describe 'multipart thumbanils URI' do
 			describe '#thumbnail_spec' do
-				it 'should allow passing ThumbnailingSpec object' do
+				it 'should allow passing ThumbnailSpec object' do
 					s1 = spec1
 					s2 = spec2
 

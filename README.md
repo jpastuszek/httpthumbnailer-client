@@ -93,7 +93,7 @@ end
 ```
 
 For more details see RSpec for [single thumbnail API](http://github.com/jpastuszek/httpthumbnailer-client/blob/master/spec/thumbnail_spec.rb) and [multipart API](http://github.com/jpastuszek/httpthumbnailer-client/blob/master/spec/thumbnails_spec.rb).
-Note that when providing only one thumbnailing specification using multipart API style the client will actually use single thumbnail API instead.
+Note that when providing only one thumbnail specification using multipart API style the client will actually use single thumbnail API instead.
 
 ### CLI tool
 

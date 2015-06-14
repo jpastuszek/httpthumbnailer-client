@@ -1,9 +1,9 @@
 class HTTPThumbnailerClient
 	#TODO: support for escaping of ! and ,
-	class ThumbnailingSpec
+	class ThumbnailSpec
 		class Builder
 			def initialize(method, width, height, format = 'jpeg', options = {}, &block)
-				@spec = ThumbnailingSpec.new(method, width.to_s, height.to_s, format, options)
+				@spec = ThumbnailSpec.new(method, width.to_s, height.to_s, format, options)
 				instance_eval(&block) if block
 			end
 
@@ -13,7 +13,7 @@ class HTTPThumbnailerClient
 					hash.merge! opt
 				end
 
-				edit_spec ThumbnailingSpec::EditSpec.new(name, args, edit_options)
+				edit_spec ThumbnailSpec::EditSpec.new(name, args, edit_options)
 				self
 			end
 
@@ -73,12 +73,12 @@ class HTTPThumbnailerClient
 			attr_reader :name, :args, :options
 
 			def self.from_string(string)
-				args = HTTPThumbnailerClient::ThumbnailingSpec.split_args(string)
-				args, options = HTTPThumbnailerClient::ThumbnailingSpec.partition_args_options(args)
+				args = HTTPThumbnailerClient::ThumbnailSpec.split_args(string)
+				args, options = HTTPThumbnailerClient::ThumbnailSpec.partition_args_options(args)
 				name = args.shift
 
 				begin
-					options = HTTPThumbnailerClient::ThumbnailingSpec.parse_options(options)
+					options = HTTPThumbnailerClient::ThumbnailSpec.parse_options(options)
 				rescue InvalidFormatError => error
 					raise error.for_edit(name)
 				end
@@ -95,7 +95,7 @@ class HTTPThumbnailerClient
 
 			def to_s
 				begin
-					[@name, *@args, *HTTPThumbnailerClient::ThumbnailingSpec.options_to_s(@options)].join(',')
+					[@name, *@args, *HTTPThumbnailerClient::ThumbnailSpec.options_to_s(@options)].join(',')
 				rescue InvalidFormatError => error
 					raise error.for_edit(name)
 				end

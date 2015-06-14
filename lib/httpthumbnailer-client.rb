@@ -116,7 +116,7 @@ class HTTPThumbnailerClient
 		return_array = true
 		uri = if spec.empty?
 			URIBuilder.thumbnails(&block)
-		elsif spec.all?{|s| s.kind_of? ThumbnailingSpec}
+		elsif spec.all?{|s| s.kind_of? ThumbnailSpec}
 			URIBuilder.specs(*spec)
 		else
 			return_array = false # for .thumbnail(data, 'crop', 60, 30, 'jpeg') kind of usage
