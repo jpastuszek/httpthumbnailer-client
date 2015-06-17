@@ -18,7 +18,7 @@ Jeweler::Tasks.new do |gem|
   gem.homepage = "http://github.com/jpastuszek/httpthumbnailer-client"
   gem.license = "MIT"
   gem.summary = %Q{API client for httpthumbniler server}
-  gem.description = %Q{Ruby client to httpthumbnailer image thumbnailing, editing and format conversion HTTP API server}
+  gem.description = %Q{Ruby client for HTTP API server for image thumbnailing, editing and format conversion.}
   gem.email = "jpastuszek@gmail.com"
   gem.authors = ["Jakub Pastuszek"]
   gem.files.exclude "features/**/*"

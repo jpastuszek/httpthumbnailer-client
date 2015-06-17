@@ -11,8 +11,8 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib"]
   s.authors = ["Jakub Pastuszek"]
-  s.date = "2015-06-03"
-  s.description = "Thumbnails images using httpthumbniler server"
+  s.date = "2015-06-17"
+  s.description = "Ruby client for HTTP API server for image thumbnailing, editing and format conversion."
   s.email = "jpastuszek@gmail.com"
   s.executables = ["httpthumbnailer-client"]
   s.extra_rdoc_files = [
