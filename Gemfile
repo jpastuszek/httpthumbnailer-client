@@ -11,7 +11,7 @@ group :development do
   gem "rspec", "~> 2.13"
   gem "rspec-mocks", "~> 2.13"
   gem 'cucumber', '~> 1.3'
-  gem "jeweler", "~> 1.8"
+  gem "jeweler", "~> 1.8", ">= 1.8.8"
   gem "rdoc", "~> 3.9"
   gem "daemon", "~> 1"
   gem "rmagick", "~> 2"
